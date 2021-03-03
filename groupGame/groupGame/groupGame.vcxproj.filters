@@ -33,6 +33,9 @@
     <ClInclude Include="character.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="upgrades.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="groupGame.cpp">
@@ -54,6 +57,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="character.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="upgrades.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

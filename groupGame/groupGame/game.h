@@ -20,6 +20,7 @@
 #include "player.h"
 #include "bullet.h"
 #include "enemy.h"
+#include "upgrades.h"
 
 class Game
 {
@@ -41,6 +42,7 @@ private:
 	std::vector<Bullet*> playerBullets;
 	std::vector<Bullet*> enemyBullets;
 	std::vector<Enemy*> enemies;
+	std::vector<Upgrade*> upgrades;
 	sf::Font font;
 
 	//*******text*******
@@ -110,7 +112,7 @@ public:
 	~Game();
 
 	//update
-	void update();
+	void update(const float& dt);
 	void updateView();
 	void updateMousePos();
 	void updatePollEvents();
@@ -183,6 +185,14 @@ public:
 
 	//void spawnEnemies();
 	void run();
+
+	//upgrades functions
+	void upgradesUpdate(const float& dt);
+	void gunUpdate(const float& dt);
+	bool gunStatus();
+
+	void fireRTUpdate(const float& dt);
+	bool fireRTStatus();
 };
 
 #endif

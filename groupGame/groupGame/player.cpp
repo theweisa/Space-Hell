@@ -66,3 +66,39 @@ void Player::update()
 	this->updateRotation();
 }
 
+void Player::updateGunLevel(int gunlevel, float aliveTimerMax) {
+	//std::cout << "Player::updateGunLevel called with" << gunlevel << std::endl;
+	this->dtMultiplier = 62.5f;
+	this->aliveTimerMax = aliveTimerMax;
+	this->gunLevel = gunlevel;
+	//std::cout << "aliveTimerMax: " << this->aliveTimerMax << std::endl;
+}
+
+void Player::gunUpgradeTimer(const float& dt) {
+
+	if (this->aliveTimer < this->aliveTimerMax) {
+		this->aliveTimer += 1.f * dt * this->dtMultiplier;
+		//std::cout << "dt: " << dt << std::endl;
+		//std::cout << "aliveTimer: " << this->aliveTimer << std::endl;
+	}
+}
+
+void Player::aliveTimerReset() {
+
+	//reset alive timer back to 0
+	this->aliveTimer = 0;
+}
+
+void Player::updateRTUpgrade(bool x, float RTaliveTimerMax) {
+	this->enabledRTUpgrade = x;
+	this->RTaliveTimerMax = RTaliveTimerMax;
+}
+
+void Player::fireRTTimer(const float& dt) {
+
+	if (this->RTaliveTimer < this->RTaliveTimerMax) {
+		this->RTaliveTimer += 1.f * dt * this->dtMultiplier;
+		std::cout << "dt: " << dt << std::endl;
+		std::cout << "RTaliveTimer: " << this->RTaliveTimer << std::endl;
+	}
+}

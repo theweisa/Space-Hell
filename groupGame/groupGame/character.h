@@ -22,6 +22,9 @@ public:
 	//update
 	void updateFireRate();
 
+	//upgrades function
+	void addHP();
+
 protected:
 	float damage;
 	float fireRate, maxFireRate;
