@@ -67,7 +67,10 @@ private:
 	bool enemyDestroyed;
 	int numEnemies;
 	int numEnemiesDestroyed;
-	//int bulletCounter;
+	bool fireCluster;
+	int bossPattern;
+	bool bossEnraged;
+	bool bossDestroyed;
 
 	//player variables
 	bool moveUp;
@@ -114,7 +117,7 @@ public:
 	void updatePlayer();
 	void updateEnemies();
 	void updateBullets();
-	void updateWorldCollision();
+	void updateWorldCollision(Entity* entity, float offset);
 	void updateEnemyCollision();
 	void updatePlayerCollision();
 	void updateGUI();
@@ -131,23 +134,40 @@ public:
 	void nextWave();
 	void moveInRect(Enemy* enemy);
 	void spawnEnemyOne(sf::Vector2f initialPosition, unsigned posInWave);
+	void spawnBounceEnemyOne(sf::Vector2f initialPosition, unsigned posInWave);
+
 	void spawnEnemyTwo(sf::Vector2f initialPosition, unsigned posInWave);
+	void spawnCircleEnemyTwo(sf::Vector2f initialPosition, unsigned posInWave);
+
 	void spawnEnemyThree(sf::Vector2f initialPosition, unsigned posInWave);
+	void spawnBurstEnemyThree(sf::Vector2f initialPosition, unsigned posInWave);
+
 	void spawnEnemyFour(sf::Vector2f initialPosition, unsigned posInWave);
 	void spawnBoss(sf::Vector2f initialPosition, unsigned posInWave);
 
+	void spawnRandomEnemy();
+
 	void enemyOneFirePattern();
+	void bounceEnemyOneFirePattern();
+
 	void enemyTwoFirePattern();
+	void circleEnemyTwoFirePattern();
+
 	void enemyThreeFirePattern();
+	void burstEnemyThreeFirePattern();
+
 	void enemyFourFirePattern(Enemy* enemy);
 	void bossFirePattern(Enemy* enemy);
 	void bossPatternOne(Enemy* enemy);
 	void bossPatternTwo(Enemy* enemy);
 	void bossPatternThree(Enemy* enemy);
 	void bossPatternFour(Enemy* enemy);
-	void bossPatternFive(Enemy* enemy);
-	void fireInCircle(sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, float offSet);
-	void fireClusterShot(Enemy* enemy);
+
+	void fireSpread(sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed, float spreadDegree);
+	void fireWave(sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletOffset, sf::Vector2f baseAimDir, Enemy* enemy);
+	void fireInCircle(sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType, sf::Vector2f centerPos, float offSet);
+	void fireClusterShot(sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType);
+	void burstClusterShot(sf::Vector2f burstPos);
 
 	void waveOne();
 	void waveTwo();
@@ -158,6 +178,7 @@ public:
 	void waveSeven();
 	void waveEight();
 	void waveNine();
+	void waveTen();
 	void bossWave();
 
 	//void spawnEnemies();

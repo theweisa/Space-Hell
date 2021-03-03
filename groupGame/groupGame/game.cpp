@@ -27,27 +27,27 @@ Game::~Game()
 	delete this->player;
 
 	//delete textures
-	for (auto& t : this->textures)
+	for (auto& texture : this->textures)
 	{
-		delete t.second;
+		delete texture.second;
 	}
 
 	//delete player bullets
-	for (auto* b : this->playerBullets)
+	for (auto* bullet : this->playerBullets)
 	{
-		delete b;
+		delete bullet;
 	}
 
 	//delete enemy bullets
-	for (auto* b : this->enemyBullets)
+	for (auto* bullet : this->enemyBullets)
 	{
-		delete b;
+		delete bullet;
 	}
 
 	//delete enemies
-	for (auto* e : this->enemies)
+	for (auto* enemy : this->enemies)
 	{
-		delete e;
+		delete enemy;
 	}
 }
 
@@ -64,7 +64,7 @@ void Game::initVariables()
 
 	this->points = 0;
 	this->combo = 1;
-	this->currentWave = 1;
+	this->currentWave = 10;
 }
 
 //initialize window
@@ -108,14 +108,20 @@ void Game::initTextures()
 	this->textures["enemyOne"] = new sf::Texture();
 	this->textures["enemyOne"]->loadFromFile("Textures/enemy1.png");
 
-	this->textures["spaceBackground"] = new sf::Texture();
-	this->textures["spaceBackground"]->loadFromFile("Textures/space_background.jpg");
+	this->textures["bounceEnemyOne"] = new sf::Texture();
+	this->textures["bounceEnemyOne"]->loadFromFile("Textures/bounceEnemy1.png");
 
 	this->textures["enemyTwo"] = new sf::Texture();
 	this->textures["enemyTwo"]->loadFromFile("Textures/enemy2.png");
 
+	this->textures["circleEnemyTwo"] = new sf::Texture();
+	this->textures["circleEnemyTwo"]->loadFromFile("Textures/circleEnemy2.png");
+
 	this->textures["enemyThree"] = new sf::Texture();
 	this->textures["enemyThree"]->loadFromFile("Textures/enemy3.png");
+
+	this->textures["burstEnemyThree"] = new sf::Texture();
+	this->textures["burstEnemyThree"]->loadFromFile("Textures/burstEnemy3.png");
 
 	this->textures["enemyFour"] = new sf::Texture();
 	this->textures["enemyFour"]->loadFromFile("Textures/enemy4.png");
@@ -125,6 +131,12 @@ void Game::initTextures()
 
 	this->textures["bigEnemyBullet"] = new sf::Texture();
 	this->textures["bigEnemyBullet"]->loadFromFile("Textures/bigEnemyBullet.png");
+
+	this->textures["bouncingEnemyBullet"] = new sf::Texture();
+	this->textures["bouncingEnemyBullet"]->loadFromFile("Textures/bouncingEnemyBullet.png");
+
+	this->textures["spaceBackground"] = new sf::Texture();
+	this->textures["spaceBackground"]->loadFromFile("Textures/space_background.jpg");
 }
 
 void Game::initGUI()
@@ -202,6 +214,9 @@ void Game::initEnemy()
 	moveRight = false;
 	numEnemiesDestroyed = 0;
 	numEnemies = 0;
+	fireCluster = false;
+	bossEnraged = false;
+	bossDestroyed = false;
 }
 
 /*
@@ -221,8 +236,8 @@ void Game::update()
 	//update player
 	this->player->update();
 
-	//update world collision
-	this->updateWorldCollision();
+	//update world collision with player
+	this->updateWorldCollision(player, 0.f);
 
 	//update enemies
 	this->updateEnemies();
@@ -323,6 +338,9 @@ void Game::updateEnemies()
 		waveNine();
 		break;
 	case 10:
+		waveTen();
+		break;
+	case 11:
 		bossWave();
 		break;
 	}
@@ -330,6 +348,10 @@ void Game::updateEnemies()
 	//move the enemies and have them shoot
 	for (auto* enemy : this->enemies)
 	{
+		if (enemy->getType() == 2 || enemy->getType() == 12)
+			updateWorldCollision(enemy, 50.f);
+		else
+			updateWorldCollision(enemy, 0.f);
 		//angle of the player relative to the enemy
 		enemyAngle = -atan2(enemies[vectPos]->getPos().x - player->getPos().x, enemies[vectPos]->getPos().y - player->getPos().y) * 180.f / 3.14159f;
 
@@ -352,9 +374,20 @@ void Game::updateEnemies()
 		//enemy 1 shoots
 		if (enemy->getType() == 0)
 		{
+			enemy->setEnemyToPlayerDir(enemyAimDir);
 			if (enemy->canFire())
 			{
 				enemyOneFirePattern();
+			}
+		}
+
+		//bounce enemy 1 shoots
+		if (enemy->getType() == 10)
+		{
+			enemy->setEnemyToPlayerDir(enemyAimDir);
+			if (enemy->canFire())
+			{
+				bounceEnemyOneFirePattern();
 			}
 		}
 
@@ -369,12 +402,34 @@ void Game::updateEnemies()
 			}
 		}
 
+		//circle enemy 2 shoots
+		else if (enemy->getType() == 11)
+		{
+			enemy->setEnemyToPlayerDir(enemyAimDir);
+			//enemyToPlayerDir = enemyAimDir;
+			if (enemy->canFire())
+			{
+				circleEnemyTwoFirePattern();
+			}
+		}
+
 		//enemy 3 shoots
 		else if (enemy->getType() == 2)
 		{
+			enemy->setEnemyToPlayerDir(enemyAimDir);
 			if (enemy->canFire())
 			{
 				enemyThreeFirePattern();
+			}
+		}
+
+		//circle enemy 3 shoots
+		else if (enemy->getType() == 12)
+		{
+			enemy->setEnemyToPlayerDir(enemyAimDir);
+			if (enemy->canFire())
+			{
+				burstEnemyThreeFirePattern();
 			}
 		}
 
@@ -388,25 +443,17 @@ void Game::updateEnemies()
 			}
 		}
 
-		else if (enemy->getType() == 10)
+		//boss shoots
+		else if (enemy->getType() == 100)
 		{
+			enemy->setEnemyToPlayerDir(enemyAimDir);
 			if (enemy->canFire())
 			{
+				if (bossPattern == 0)
+					bossPattern = rand() % 4 + 1;
 				bossFirePattern(enemy);
 			}
 		}
-
-		//despawn the enemy if it goes outside the window
-		/*if ((enemy->getPos().y < 0.f) || (enemy->getPos().y >= this->window->getSize().y) || (enemy->getPos().x < 0.f) || (enemy->getPos().x >= this->window->getSize().x))
-		{
-			std::cout << "Enemy despawned " << enemy->getType();
-			//reset enemy 4's bulletCounter
-			if (enemy->getType() == 3)
-				bulletCounter = 0;
-			delete enemy;
-			this->enemies.erase(enemies.begin() + vectPos);
-			vectPos--;
-		}*/
 		vectPos++;
 	}
 }
@@ -435,6 +482,7 @@ void Game::updateBullets()
 
 	//update enemy bullets; move and delete them
 	std::vector<Bullet*>::iterator itr = enemyBullets.begin();
+	sf::Vector2f bulletPos;
 	while (itr != enemyBullets.end())
 	{
 		(*itr)->update();
@@ -447,62 +495,76 @@ void Game::updateBullets()
 			float offsetLeft = (*itr)->getBasePlayerPos().x + 10.f;
 			if (((*itr)->getPos().y < offsetTop && (*itr)->getPos().y > offsetBottom) && ((*itr)->getPos().x < offsetLeft && (*itr)->getPos().x > offsetRight))
 			{
-				std::cout << "burst the bullet at pos " << (*itr)->getPos().x << ", " << (*itr)->getPos().y << std::endl;
+				bulletPos = (*itr)->getPos();
 				itr = enemyBullets.erase(itr);
-
+				fireCluster = true;
 			}
 			else
 				itr++;
 		}
 
-
 		else if (((*itr)->getPos().y < 0.f) || ((*itr)->getPos().y >= this->window->getSize().y) || ((*itr)->getPos().x < 0.f) || ((*itr)->getPos().x >= this->window->getSize().x))
 		{
-			itr = enemyBullets.erase(itr);
+			if ((*itr)->getMaxBounce() > 0)
+			{
+				//top wall
+				if ((*itr)->getPos().y < 0.f)
+				{
+					(*itr)->setDir(sf::Vector2f((*itr)->getDir().x, (*itr)->getDir().y * -1));
+				}
+				//bottom wall
+				if ((*itr)->getPos().y >= this->window->getSize().y)
+				{
+					(*itr)->setDir(sf::Vector2f((*itr)->getDir().x, (*itr)->getDir().y * -1));
+				}
+				//left wall
+				if ((*itr)->getPos().x < 0.f)
+				{
+					(*itr)->setDir(sf::Vector2f((*itr)->getDir().x * -1, (*itr)->getDir().y));
+				}
+				//right wall
+				if ((*itr)->getPos().x >= this->window->getSize().x)
+				{
+					(*itr)->setDir(sf::Vector2f((*itr)->getDir().x * -1, (*itr)->getDir().y));
+				}
+				updateWorldCollision((*itr), 0.f);
+				(*itr)->setMaxBounce((*itr)->getMaxBounce() - 1);
+				itr++;
+			}
+			else
+				itr = enemyBullets.erase(itr);
 		}
 		else
 			itr++;
 	}
-	/*
-	for (auto *b : this->enemyBullets)
+	if (fireCluster)
 	{
-		//move the bullets
-		b->update();
-
-		//erase the bullets if out of bounds
-		if ((b->getPos().y < 0.f) || (b->getPos().y >= this->window->getSize().y) || (b->getPos().x < 0.f) || (b->getPos().x >= this->window->getSize().x))
-		{
-			delete this->enemyBullets[vectPos];
-			this->enemyBullets.erase(this->enemyBullets.begin() + vectPos);
-			std::cout << "Erased bullet at position: " << vectPos << std::endl;
-			--vectPos;
-		}
-		++vectPos;
-	}*/
+		fireCluster = false;
+		burstClusterShot(bulletPos);
+	}
 }
 
-//check if character is at edge of world
-void Game::updateWorldCollision()
+void Game::updateWorldCollision(Entity* entity, float offset)
 {
 	//Top world collision
-	if (this->player->getPos().y < 0.f)
-	{ 
-		this->player->setPosition(this->player->getPos().x, 0.f); 
+	if (entity->getPos().y < offset)
+	{
+		entity->setPosition(entity->getPos().x, offset);
 	}
 	//bottom world collision
-	if (this->player->getPos().y >= this->window->getSize().y)
+	if (entity->getPos().y >= this->window->getSize().y - offset)
 	{
-		this->player->setPosition(this->player->getPos().x, this->window->getSize().y);
+		entity->setPosition(entity->getPos().x, this->window->getSize().y - offset);
 	}
 	//left world collision
-	if (this->player->getPos().x < 0.f)
+	if (entity->getPos().x < offset)
 	{
-		this->player->setPosition(0.f, this->player->getPos().y);
+		entity->setPosition(offset, entity->getPos().y);
 	}
 	//right world collision
-	if (this->player->getPos().x >= this->window->getSize().x)
+	if (entity->getPos().x >= this->window->getSize().x - offset)
 	{
-		this->player->setPosition(this->window->getSize().x, this->player->getPos().y);
+		entity->setPosition(this->window->getSize().x - offset, entity->getPos().y);
 	}
 }
 
@@ -513,10 +575,10 @@ void Game::updateEnemyCollision()
 	int unsigned bulletVectPos = 0;
 	
 	//check if each enemy has collided with a player bullet
-	for (auto *e : this->enemies)
+	for (auto *enemy : this->enemies)
 	{
 		//checks if each bullet has collided with the enemy
-		for (auto *b : this->playerBullets)
+		for (auto *bullet : this->playerBullets)
 		{
 			//bool that is if enemy hitbox intersects with player bullets
 			enemyCollision = this->playerBullets[bulletVectPos]->getGlobalHitbox().intersects(this->enemies[enemyVectPos]->getGlobalHitbox());
@@ -525,14 +587,18 @@ void Game::updateEnemyCollision()
 			if (enemyCollision)
 			{
 				//enemy takes damage
-				this->enemies[enemyVectPos]->takeDamage(player->getDamage());
+				enemy->takeDamage(player->getDamage());
 
 				//gain points for hitting the enemy
 				points += 10 * combo;
 
 				//enemy is set to destroyed if hp bar is below 0
-				if (enemies[enemyVectPos]->getHp() <= 0.f)
+				if (enemy->getHp() <= 0.f)
+				{
 					enemyDestroyed = true;
+					if (enemy->getType() == 100)
+						bossDestroyed = true;
+				}
 
 				//delete the bullet after it hits the enemy
 				delete this->playerBullets[bulletVectPos];
@@ -541,11 +607,16 @@ void Game::updateEnemyCollision()
 			}
 			bulletVectPos++;
 		}
-		//enemy is deleted if it is destroyed
-		if (enemyDestroyed)
+		//enemy is deleted if it is destroyed, or if the boss has been destroyed all the enemies are destroyed
+		if (enemyDestroyed || bossDestroyed)
 		{
+			if (bossDestroyed)
+			{
+				points += 1000 * combo;
+			}
+			else
 			//gain points for destroying the enemy
-			points += 100 * combo;
+				points += 100 * combo;
 
 			//increase your combo
 			combo += 1;
@@ -732,6 +803,21 @@ const bool Game::running() const {
 	return this->window->isOpen();
 }
 
+/*
+ENEMY WAVES
+1: one enemy1
+2: three enemy1s in rectangle
+3: one shotgun enemy and three enemy1s in rectangle
+4: two shot gun enemies and one bullet bounce enemy
+5: two shot gun enemy, one bullet bounce enemy, one normal enemy, one sniper enemy
+6: one circle shot enemy, two basic enemy, one shotgun enemy
+7: one spray enemy, one circle shot enemy, one bounce enemy circling map
+8: two shot gun enemies, one circle shot enemy, one bullet bounce enemy, one sniper enemy
+9: one circle shot enemy, one spray enemy, two bullet bounce enemy, two normal enemy
+10: two spray enemy, one circle shot enemy, one burst enemy; after like 5-7 seconds, two shot gun enemy, two bullet bounce enemy, one burst enemy
+11: boss wave!
+*/
+
 //spawn 1 basic enemy from the top. 
 void Game::waveOne()
 {
@@ -756,36 +842,8 @@ void Game::waveOne()
 	}
 }
 
-//spawn two basic enemies and have them move left and right
-void Game::waveTwo()
-{
-	sf::Time elapsed = clock.getElapsedTime();
-	if (elapsed.asSeconds() >= 2.f && numEnemies == 0)
-	{
-		numEnemies++;
-		sf::Vector2f initialPosition(window->getSize().x * 0.33f, 0);
-		spawnEnemyOne(initialPosition, numEnemies);
-
-		numEnemies++;
-		initialPosition = sf::Vector2f(window->getSize().x * 0.66f, 0);
-		spawnEnemyOne(initialPosition, numEnemies);
-	}
-	for (auto* e : enemies)
-	{
-		if (e->getType() == 0)
-		{
-			if (e->getPos().y < 100.f)
-				e->move(0, 1);
-		}
-	}
-	if (numEnemiesDestroyed == 2)
-	{
-		nextWave();
-	}
-}
-
 //spawn three basic enemies to go around the player
-void Game::waveThree()
+void Game::waveTwo()
 {
 	sf::Time elapsed = clock.getElapsedTime();
 
@@ -823,8 +881,8 @@ void Game::waveThree()
 	}
 }
 
-//have a shot gun enemy spawn from the top and move towards the player as well as two basic enemies from the bottom
-void Game::waveFour()
+//have a shot gun enemy spawn from the top and move towards the player as well as three basic enemies from the bottom
+void Game::waveThree()
 {
 	sf::Time elapsed = clock.getElapsedTime();
 	if (elapsed.asSeconds() >= 2.f && numEnemies == 0)
@@ -874,8 +932,8 @@ void Game::waveFour()
 	}
 }
 
-//have two shot gun enemies moving towards the player, and two basic enemies circling the map
-void Game::waveFive()
+//have two shot gun enemies moving towards the player, and two bullet bounce enemies
+void Game::waveFour()
 {
 	sf::Vector2f radius(window->getSize().x - 100.f, window->getSize().y - 100.f);
 	sf::Time elapsed = clock.getElapsedTime();
@@ -896,7 +954,7 @@ void Game::waveFive()
 		//spawn from top
 		numEnemies++;
 		sf::Vector2f initialPosition(window->getSize().x * 0.5f, 0);
-		spawnEnemyOne(initialPosition, numEnemies);
+		spawnBounceEnemyOne(initialPosition, numEnemies);
 	}
 
 	if (elapsed.asSeconds() >= 4.f && numEnemies == 3)
@@ -904,20 +962,12 @@ void Game::waveFive()
 		//spawn from top
 		numEnemies++;
 		sf::Vector2f initialPosition(window->getSize().x * 0.5f, 0);
-		spawnEnemyOne(initialPosition, numEnemies);
-	}
-
-	if (elapsed.asSeconds() >= 5.f && numEnemies == 4)
-	{
-		//spawn from top
-		numEnemies++;
-		sf::Vector2f initialPosition(window->getSize().x * 0.5f, 0);
-		spawnEnemyOne(initialPosition, numEnemies);
+		spawnBounceEnemyOne(initialPosition, numEnemies);
 	}
 
 	for (auto *e : enemies)
 	{
-		if (e->getType() == 0)
+		if (e->getType() == 10)
 		{
 			if (e->getPos().y < 100.f)
 				e->move(0, 1);
@@ -929,65 +979,376 @@ void Game::waveFive()
 			e->move(e->getEnemyToPlayerDir().x, e->getEnemyToPlayerDir().y);
 		}
 	}
-	if (numEnemiesDestroyed >= 5)
+	if (numEnemiesDestroyed >= 4)
 	{	
 		nextWave();
 	}
 }
 
-//three shotgun enemies move towards the player with one sniper enemy in the back
-void Game::waveSix()
+//two shot gun enemy, one bullet bounce enemy, one sniper enemy, and one normal enemy
+void Game::waveFive()
 {
 	sf::Time elapsed = clock.getElapsedTime();
+	//spawn two shot gun enemies
 	if (elapsed.asSeconds() >= 2.f && numEnemies == 0)
 	{
 		numEnemies++;
-		sf::Vector2f initialPosition(window->getSize().x * 0.5f, 0);
+		sf::Vector2f initialPosition(window->getSize().x * 0.33f, 0);
 		spawnEnemyTwo(initialPosition, numEnemies);
 
 		numEnemies++;
-		initialPosition = sf::Vector2f(window->getSize().x * 0.5f, window->getSize().y);
-		spawnEnemyThree(initialPosition, numEnemies);
+		initialPosition = sf::Vector2f(window->getSize().x * 0.66f, 0);
+		spawnEnemyTwo(initialPosition, numEnemies);
 	}
+	//spawn bullet bounce enemy
 	if (elapsed.asSeconds() >= 3.f && numEnemies == 2)
 	{
 		numEnemies++;
 		sf::Vector2f initialPosition(window->getSize().x * 0.5f, 0);
-		spawnEnemyTwo(initialPosition, numEnemies);
+		spawnBounceEnemyOne(initialPosition, numEnemies);
 	}
+	//spawn sniper enemy and normal enemy
 	if (elapsed.asSeconds() >= 4.f && numEnemies == 3)
 	{
 		numEnemies++;
-		sf::Vector2f initialPosition(window->getSize().x * 0.5f, 0);
-		spawnEnemyTwo(initialPosition, numEnemies);
+		sf::Vector2f initialPosition(window->getSize().x * 0.5f, window->getSize().y + 50.f);
+		spawnEnemyThree(initialPosition, numEnemies);
+
+		numEnemies++;
+		initialPosition = sf::Vector2f(window->getSize().x * 0.5f, 0);
+		spawnEnemyOne(initialPosition, numEnemies);
 	}
 
-	for (auto *e : enemies)
+	for (auto *enemy : enemies)
 	{
-		if (e->getType() == 1)
+		if (enemy->getType() == 0)
 		{
-			e->move(e->getEnemyToPlayerDir().x, e->getEnemyToPlayerDir().y);
+			if (enemy->getPos().y < 100.f)
+				enemy->move(0, 1);
+			else
+				moveInRect(enemy);
 		}
-		else if (e->getType() == 2)
+		else if (enemy->getType() == 10)
 		{
-			if (e->getPos().y > window->getSize().y - 50.f)
-			{
-				e->move(0, -1);
-			}
+			if (enemy->getPos().y < 100.f)
+				enemy->move(0, 1);
+			else
+				moveInRect(enemy);
+		}
+		else if (enemy->getType() == 1)
+		{
+			enemy->move(enemy->getEnemyToPlayerDir().x, enemy->getEnemyToPlayerDir().y);
+		}
+		else if (enemy->getType() == 2)
+		{
+			enemy->move(-enemy->getEnemyToPlayerDir().x, -enemy->getEnemyToPlayerDir().y);
 		}
 	}
 
+	if (numEnemiesDestroyed >= 5)
+	{
+		nextWave();
+	}
+}
+
+//one circle shot enemy, two basic enemy, one shotgun enemy
+void Game::waveSix()
+{
+	sf::Time elapsed = clock.getElapsedTime();
+	//spawn basic enemy one
+	if (elapsed.asSeconds() >= 2.f && numEnemies == 0)
+	{
+		numEnemies++;
+		sf::Vector2f initialPosition(window->getSize().x * 0.5f, 0);
+		spawnEnemyOne(initialPosition, numEnemies);
+	}
+
+	//spawn basic enemy two
+	if (elapsed.asSeconds() >= 3.f && numEnemies == 1)
+	{
+		numEnemies++;
+		sf::Vector2f initialPosition(window->getSize().x * 0.5f, 0);
+		spawnEnemyOne(initialPosition, numEnemies);
+	}
+
+	//spawn shot gun enemy and circle shot
+	if (elapsed.asSeconds() >= 3.5f && numEnemies == 2)
+	{
+		numEnemies++;
+		sf::Vector2f initialPosition(window->getSize().x * 0.33f, window->getSize().y);
+		spawnEnemyTwo(initialPosition, numEnemies);
+
+		numEnemies++;
+		initialPosition = sf::Vector2f(window->getSize().x * 0.66f, window->getSize().y);
+		spawnCircleEnemyTwo(initialPosition, numEnemies);
+	}
+
+	for (auto* enemy : enemies)
+	{
+		if (enemy->getType() == 0)
+		{
+			if (enemy->getPos().y < 100.f)
+				enemy->move(0, 1);
+			else
+				moveInRect(enemy);
+		}
+		else if (enemy->getType() == 1)
+		{
+			enemy->move(enemy->getEnemyToPlayerDir().x, enemy->getEnemyToPlayerDir().y);
+		}
+		else if (enemy->getType() == 11)
+		{
+			enemy->move(enemy->getEnemyToPlayerDir().x, enemy->getEnemyToPlayerDir().y);
+		}
+	}
 	if (numEnemiesDestroyed >= 4)
 	{
 		nextWave();
 	}
 }
 
-//have two shot gun enemies moving towards the player, one sniper moving left and right, and three basic enemy circling the map
+//one spray enemy, one circle shot enemy, one sniper and basic enemy circling map
 void Game::waveSeven()
 {
 	sf::Time elapsed = clock.getElapsedTime();
+	//spawn sniper and bounce enemy
 	if (elapsed.asSeconds() >= 2.f && numEnemies == 0)
+	{
+		numEnemies++;
+		sf::Vector2f initialPosition(window->getSize().x * 0.33f, 50.f);
+		spawnEnemyThree(initialPosition, numEnemies);
+
+		numEnemies++;
+		initialPosition = sf::Vector2f(window->getSize().x * 0.66f, 0);
+		spawnBounceEnemyOne(initialPosition, numEnemies);
+	}
+
+	//spawn circle shot enemy
+	if (elapsed.asSeconds() >= 3.f && numEnemies == 2)
+	{
+		//spawn sniper enemies from the two bottom corners of the map
+		numEnemies++;
+		sf::Vector2f initialPosition(window->getSize().x, window->getSize().y * 0.5f);
+		spawnCircleEnemyTwo(initialPosition, numEnemies);
+	}
+
+	//spawn spray enemy
+	if (elapsed.asSeconds() >= 4.f && numEnemies == 3)
+	{
+		numEnemies++;
+		sf::Vector2f initialPosition(window->getSize().x * 0.5f, 0);
+		spawnEnemyFour(initialPosition, numEnemies);
+	}
+	for (auto* enemy : enemies)
+	{
+		//bounce enemy one moves left right
+		if (enemy->getType() == 10)
+		{
+			if (enemy->getPos().y < 50.f)
+				enemy->move(0, 1);
+			else
+			{
+				if (enemy->getPos().x < 50.f)
+					moveRight = true;
+				else if (enemy->getPos().x > window->getSize().x - 50.f)
+					moveRight = false;
+				if (moveRight)
+					enemy->move(1, 0);
+				else
+					enemy->move(-1, 0);
+			}
+		}
+		//circle enemy moves towards player
+		else if (enemy->getType() == 11)
+		{
+			enemy->move(enemy->getEnemyToPlayerDir().x, enemy->getEnemyToPlayerDir().y);
+		}
+		//sniper enemy moves away from player
+		else if (enemy->getType() == 2)
+		{
+			enemy->move(-enemy->getEnemyToPlayerDir().x, -enemy->getEnemyToPlayerDir().y);
+		}
+		//spray enemy moves towards player
+		else if (enemy->getType() == 3)
+		{
+			enemy->move(enemy->getEnemyToPlayerDir().x, enemy->getEnemyToPlayerDir().y);
+		}
+	}
+	if (numEnemiesDestroyed >= 4)
+	{
+		nextWave();
+	}
+}
+
+//two shot gun enemies, one circle shot enemy, one basic enemy, one burst enemy
+void Game::waveEight()
+{
+	sf::Time elapsed = clock.getElapsedTime();
+	//spawn two shot gun enemies from top
+	if (elapsed.asSeconds() >= 2.f && numEnemies == 0)
+	{
+		numEnemies++;
+		sf::Vector2f initialPosition(window->getSize().x * 0.33f, 0);
+		spawnEnemyTwo(initialPosition, numEnemies);
+
+		numEnemies++;
+		initialPosition = sf::Vector2f(window->getSize().x * 0.66f, 0);
+		spawnEnemyTwo(initialPosition, numEnemies);
+	}
+
+	//spawn basic enemy from bottom
+	if (elapsed.asSeconds() >= 3.f && numEnemies == 2)
+	{
+		numEnemies++;
+		sf::Vector2f initialPosition(window->getSize().x * 0.5f, window->getSize().y);
+		spawnEnemyOne(initialPosition, numEnemies);
+	}
+
+	//spawn circle shot enemy from bottom
+	if (elapsed.asSeconds() >= 4.f && numEnemies == 3)
+	{
+		numEnemies++;
+		sf::Vector2f initialPosition(window->getSize().x * 0.5f, window->getSize().y);
+		spawnCircleEnemyTwo(initialPosition, numEnemies);
+	}
+
+	//spawn burst enemy at top middle
+	if (elapsed.asSeconds() >= 5.f && numEnemies == 4)
+	{
+		numEnemies++;
+		sf::Vector2f initialPosition(window->getSize().x * 0.5f, 50.f);
+		spawnBurstEnemyThree(initialPosition, numEnemies);
+	}
+
+	for (auto* enemy : enemies)
+	{
+		//move basic enemy in rect
+		if (enemy->getType() == 0)
+		{
+			if (enemy->getPos().y > window->getSize().y - 100.f)
+				enemy->move(0, -1);
+			else
+				moveInRect(enemy);
+		}
+		//shot gun enemy towards player
+		else if (enemy->getType() == 1)
+		{
+			enemy->move(enemy->getEnemyToPlayerDir().x, enemy->getEnemyToPlayerDir().y);
+		}
+		//circle shot enemy towards player
+		else if (enemy->getType() == 11)
+		{
+			enemy->move(enemy->getEnemyToPlayerDir().x, enemy->getEnemyToPlayerDir().y);
+		}
+		//burst enemy
+		else if (enemy->getType() == 12)
+		{
+			enemy->move(-enemy->getEnemyToPlayerDir().x, -enemy->getEnemyToPlayerDir().y);
+		}
+	}
+	if (numEnemiesDestroyed >= 5)
+		nextWave();
+}
+
+//one circle shot enemy, one spray enemy, two bullet bounce enemy, two normal enemy
+void Game::waveNine()
+{
+	sf::Time elapsed = clock.getElapsedTime();
+	//spawn normal enemies from top
+	if (elapsed.asSeconds() >= 2.f && numEnemies == 0)
+	{
+		numEnemies++;
+		sf::Vector2f initialPosition(window->getSize().x * 0.5f, 0);
+		spawnEnemyOne(initialPosition, numEnemies);
+	}
+
+	if (elapsed.asSeconds() >= 3.f && numEnemies == 1)
+	{
+		numEnemies++;
+		sf::Vector2f initialPosition(window->getSize().x * 0.5f, 0);
+		spawnEnemyOne(initialPosition, numEnemies);
+	}
+
+	//spawn two bullet bounce enemies circling too
+	//spawn spray and circle enemy from sides
+	if (elapsed.asSeconds() >= 4.f && numEnemies == 2)
+	{
+		numEnemies++;
+		sf::Vector2f initialPosition(window->getSize().x * 0.5f, 0);
+		spawnBounceEnemyOne(initialPosition, numEnemies);
+
+		numEnemies++;
+		initialPosition = sf::Vector2f(0, window->getSize().y * 0.5f);
+		spawnCircleEnemyTwo(initialPosition, numEnemies);
+
+		numEnemies++;
+		initialPosition = sf::Vector2f(window->getSize().x, window->getSize().y * 0.5f);
+		spawnEnemyFour(initialPosition, numEnemies);
+	}
+
+	if (elapsed.asSeconds() >= 5.f && numEnemies == 5)
+	{
+		numEnemies++;
+		sf::Vector2f initialPosition(window->getSize().x * 0.5f, 0);
+		spawnBounceEnemyOne(initialPosition, numEnemies);
+	}
+
+
+	for (auto* enemy : enemies)
+	{
+		//move basic enemy in rect
+		if (enemy->getType() == 0 || enemy->getType() == 10)
+		{
+			if (enemy->getPos().y < 100.f)
+				enemy->move(0, 1);
+			else
+				moveInRect(enemy);
+		}
+		//circle shot enemy towards player
+		else if (enemy->getType() == 11)
+		{
+			enemy->move(enemy->getEnemyToPlayerDir().x, enemy->getEnemyToPlayerDir().y);
+		}
+		//spray enemy
+		else if (enemy->getType() == 3)
+		{
+			enemy->move(enemy->getEnemyToPlayerDir().x, enemy->getEnemyToPlayerDir().y);
+		}
+	}
+	if (numEnemiesDestroyed >= 6)
+		nextWave();
+}
+
+//two spray enemy, one circle shot enemy, one burst enemy; after like 5 - 7 seconds, two shot gun enemy, two bullet bounce enemy, and one more circle enemy
+void Game::waveTen()
+{
+	sf::Time elapsed = clock.getElapsedTime();
+	//spawn two spray enemies
+	if (elapsed.asSeconds() >= 2.f && numEnemies == 0)
+	{
+		numEnemies++;
+		sf::Vector2f initialPosition(window->getSize().x * 0.33f, 0);
+		spawnEnemyFour(initialPosition, numEnemies);
+
+		numEnemies++;
+		initialPosition = sf::Vector2f(window->getSize().x * 0.66f, 0);
+		spawnEnemyFour(initialPosition, numEnemies);
+	}
+
+	//spawn burst and circle shot enemy
+	if (elapsed.asSeconds() >= 3.f && numEnemies == 2)
+	{
+		numEnemies++;
+		sf::Vector2f initialPosition(window->getSize().x * 0.5f, 50.f);
+		spawnBurstEnemyThree(initialPosition, numEnemies);
+
+		numEnemies++;
+		initialPosition = sf::Vector2f(window->getSize().x * 0.5f, window->getSize().y);
+		spawnCircleEnemyTwo(initialPosition, numEnemies);
+	}
+
+	//wait 5 seconds to spawn two shot gun enemies
+	if (elapsed.asSeconds() >= 10.f && numEnemies == 4)
 	{
 		numEnemies++;
 		sf::Vector2f initialPosition(window->getSize().x * 0.33f, window->getSize().y);
@@ -998,251 +1359,63 @@ void Game::waveSeven()
 		spawnEnemyTwo(initialPosition, numEnemies);
 	}
 
-	if (elapsed.asSeconds() >= 3.f && numEnemies == 2)
+	//spawn two bullet bounce enemies circling 
+	if (elapsed.asSeconds() >= 11.f && numEnemies == 6)
 	{
 		numEnemies++;
-		sf::Vector2f initialPosition(0, window->getSize().y * 0.5f);
-		spawnEnemyThree(initialPosition, numEnemies);
-	}
-
-	if (elapsed.asSeconds() >= 3.5f && numEnemies == 3)
-	{
-		numEnemies++;
-		sf::Vector2f initialPosition(window->getSize().x * 0.5f, 0);
-		spawnEnemyOne(initialPosition, numEnemies);
-	}
-	if (elapsed.asSeconds() >= 4.5f && numEnemies == 4)
-	{
-		numEnemies++;
-		sf::Vector2f initialPosition(window->getSize().x * 0.5f, 0);
-		spawnEnemyOne(initialPosition, numEnemies);
-	}
-	if (elapsed.asSeconds() >= 5.5f && numEnemies == 5)
-	{
-		numEnemies++;
-		sf::Vector2f initialPosition(window->getSize().x * 0.5f, 0);
-		spawnEnemyOne(initialPosition, numEnemies);
-	}
-
-	for (auto* e : enemies)
-	{
-		if (e->getType() == 0)
-		{
-			if (e->getPos().y < 100.f)
-				e->move(0, 1);
-			else
-				moveInRect(e);
-		}
-		else if (e->getType() == 1)
-		{
-			e->move(e->getEnemyToPlayerDir().x, e->getEnemyToPlayerDir().y);
-		}
-		else if (e->getType() == 2)
-		{
-			if (e->getPos().x < 100.f)
-				e->move(1, 0);
-			else
-			{
-				if (e->getPos().y < 100.f)
-					moveUp = false;
-				else if (e->getPos().y > window->getSize().y - 100.f)
-					moveUp = true;
-				if (moveUp)
-					e->move(0, -1);
-				else
-					e->move(0, 1);
-			}
-		}
-	}
-	if (numEnemiesDestroyed >= 6)
-	{
-		nextWave();
-	}
-}
-
-//have a spray enemy moving towards the player, two shotgun enemies moving towards the player, and two snipers in the back
-void Game::waveEight()
-{
-	sf::Time elapsed = clock.getElapsedTime();
-	if (elapsed.asSeconds() >= 2.f && numEnemies == 0)
-	{
-		//spawn shotgun enemy from the two veritcal sides of the screen
-		numEnemies++;
-		sf::Vector2f initialPosition(0, window->getSize().y * 0.5f);
-		spawnEnemyTwo(initialPosition, numEnemies);
+		sf::Vector2f initialPosition(window->getSize().x * 0.33f, 0);
+		spawnBounceEnemyOne(initialPosition, numEnemies);
 
 		numEnemies++;
-		initialPosition = sf::Vector2f(window->getSize().x, window->getSize().y * 0.5f);
-		spawnEnemyTwo(initialPosition, numEnemies);
+		initialPosition = sf::Vector2f(window->getSize().x * 0.66f, 0);
+		spawnBounceEnemyOne(initialPosition, numEnemies);
 	}
 
-	if (elapsed.asSeconds() >= 3.f && numEnemies == 2)
-	{
-		//spawn sniper enemies from the two bottom corners of the map
-		numEnemies++;
-		sf::Vector2f initialPosition(window->getSize().x, window->getSize().y);
-		spawnEnemyThree(initialPosition, numEnemies);
-
-		numEnemies++;
-		initialPosition = sf::Vector2f(0, window->getSize().y);
-		spawnEnemyThree(initialPosition, numEnemies);
-	}
-
-	if (elapsed.asSeconds() >= 4.f && numEnemies == 4)
+	//spawn circle shot enemy
+	if (elapsed.asSeconds() >= 12.f && numEnemies == 8)
 	{
 		numEnemies++;
-		sf::Vector2f initialPosition(window->getSize().x * 0.5f, 0);
-		spawnEnemyFour(initialPosition, numEnemies);
+		sf::Vector2f initialPosition(window->getSize().x, window->getSize().y * 0.5f);
+		spawnCircleEnemyTwo(initialPosition, numEnemies);
 	}
+
 	for (auto* enemy : enemies)
 	{
-		if (enemy->getType() == 1)
+		//move basic enemy in rect
+		if (enemy->getType() == 10)
 		{
-			enemy->move(enemy->getEnemyToPlayerDir().x, enemy->getEnemyToPlayerDir().y);
-		}
-		else if (enemy->getType() == 2)
-		{
-			if (enemy->getPosInWave() == 3)
-			{
-				if (enemy->getPos().x > window->getSize().x - 50.f && enemy->getPos().y > window->getSize().y - 50.f)
-					enemy->move(-1, -1);
-			}
-			if (enemy->getPosInWave() == 4)
-			{
-				if (enemy->getPos().x < 50.f && enemy->getPos().y > window->getSize().y - 50.f)
-					enemy->move(1, -1);
-			}
-		}
-		else if (enemy->getType() == 3)
-		{
-			if (enemy->getPos().y < 50.f)
+			if (enemy->getPos().y < 100.f)
 				enemy->move(0, 1);
-			else
-			{
-				if (enemy->getPos().x < 50.f)
-					moveRight = true;
-				else if (enemy->getPos().x > window->getSize().x - 50.f)
-					moveRight = false;
-				if (moveRight)
-					enemy->move(1, 0);
-				else
-					enemy->move(-1, 0);
-			}
-		}
-	}
-	if (numEnemiesDestroyed >= 5)
-	{
-		nextWave();
-	}
-}
-
-//have two enemy4s chasing the player around, 3 enemy1s circling the map, a sniper in the back, and a shotgun
-void Game::waveNine()
-{
-	sf::Time elapsed = clock.getElapsedTime();
-	if (elapsed.asSeconds() >= 2.f && numEnemies == 0)
-	{
-		numEnemies++;
-		sf::Vector2f initialPosition(window->getSize().x * 0.5f, window->getSize().y);
-		spawnEnemyOne(initialPosition, numEnemies);
-	}
-
-	if (elapsed.asSeconds() >= 2.5f && numEnemies == 1)
-	{
-
-		numEnemies++;
-		sf::Vector2f initialPosition(window->getSize().x * 0.4f, 0);
-		spawnEnemyFour(initialPosition, numEnemies);
-
-		numEnemies++;
-		initialPosition = sf::Vector2f(window->getSize().x * 0.6f, 0);
-		spawnEnemyFour(initialPosition, numEnemies);
-	}
-
-	if (elapsed.asSeconds() >= 3.f && numEnemies == 3)
-	{
-		numEnemies++;
-		sf::Vector2f initialPosition(window->getSize().x * 0.5f, window->getSize().y);
-		spawnEnemyOne(initialPosition, numEnemies);
-	}
-
-	if (elapsed.asSeconds() >= 3.5f && numEnemies == 4)
-	{
-		numEnemies++;
-		sf::Vector2f initialPosition(0, window->getSize().y * 0.5f);
-		spawnEnemyTwo(initialPosition, numEnemies);
-
-		numEnemies++;
-		initialPosition = sf::Vector2f(window->getSize().x, window->getSize().y * 0.5f);
-		spawnEnemyThree(initialPosition, numEnemies);
-	}
-
-	if (elapsed.asSeconds() >= 4.f && numEnemies == 6)
-	{
-		numEnemies++;
-		sf::Vector2f initialPosition(window->getSize().x * 0.5f, window->getSize().y);
-		spawnEnemyOne(initialPosition, numEnemies);
-	}
-
-	for (auto* enemy : enemies)
-	{
-		if (enemy->getType() == 0)
-		{
-			if (enemy->getPos().y > window->getSize().y - 100.f)
-				enemy->move(0, -1);
 			else
 				moveInRect(enemy);
 		}
-		else if (enemy->getType() == 1)
+		//circle shot enemy towards player
+		else if (enemy->getType() == 1 || enemy->getType() == 11)
 		{
 			enemy->move(enemy->getEnemyToPlayerDir().x, enemy->getEnemyToPlayerDir().y);
 		}
-		else if (enemy->getType() == 2)
+		//burst enemy
+		else if (enemy->getType() == 12)
 		{
-			if (enemy->getPos().x > window->getSize().x - 100.f)
-				enemy->move(-1, 0);
-			else
-			{
-				if (enemy->getPos().y < 100.f)
-					moveUp = false;
-				else if (enemy->getPos().y > window->getSize().y - 100.f)
-					moveUp = true;
-				if (moveUp)
-					enemy->move(0, -1);
-				else
-					enemy->move(0, 1);
-			}
+			enemy->move(-enemy->getEnemyToPlayerDir().x, -enemy->getEnemyToPlayerDir().y);
 		}
+		//spray enemy
 		else if (enemy->getType() == 3)
 		{
-			if (enemy->getPos().y < 50.f)
-				enemy->move(0, 1);
-			else
-			{
-				if (enemy->getPos().x < 50.f)
-					moveRight = true;
-				else if (enemy->getPos().x > window->getSize().x - 50.f)
-					moveRight = false;
-				if (moveRight)
-					enemy->move(1, 0);
-				else
-					enemy->move(-1, 0);
-			}
+			enemy->move(enemy->getEnemyToPlayerDir().x, enemy->getEnemyToPlayerDir().y);
 		}
 	}
-	if (numEnemiesDestroyed >= 7)
+	if (numEnemiesDestroyed >= 9)
 		nextWave();
 }
 
 /*
 BOSS WAVE
 firing patterns:
-	- big wave of bullets; covering the whole screen of like 10+ish bullets: 20%
-	- multiple waves of bullets, each in slightly different angles: 20%
-	- cluster of bullets that explode into all directions: 20%
-	- machine gun shots targeting the player for some time: 20%
-	- lasers!: 20%
-has a % chance of performing these attacks;
+	- multiple waves of bullets, each in slightly different angles: 
+	- cluster of bullets that explode into all directions: 
+	- machine gun spread shots targeting the player for some time: 
+	- bouncing wave of bullets
 */
 void Game::bossWave()
 {
@@ -1253,13 +1426,38 @@ void Game::bossWave()
 		sf::Vector2f initialPosition(window->getSize().x * 0.5f, 0);
 		spawnBoss(initialPosition, numEnemies);
 	}
+
+	//spawn an enemy every 7 seconds after the boss is enraged
+	if (bossEnraged && elapsed.asSeconds() >= 10.f)
+	{
+		spawnRandomEnemy();
+		clock.restart();
+	}
+
 	for (auto* enemy : enemies)
 	{
-		if (enemy->getType() == 10)
+		if (enemy->getType() == 100)
 		{
 			if (enemy->getPos().y < 100.f)
 				enemy->move(0, 1);
+			if (enemy->getHp() <= enemy->getMaxHp() * 0.5f)
+				bossEnraged = true;
 		}
+		else if (enemy->getType() == 2 || enemy->getType() == 12)
+		{
+			enemy->move(-enemy->getEnemyToPlayerDir().x, -enemy->getEnemyToPlayerDir().y);
+		}
+		else
+		{
+			enemy->move(enemy->getEnemyToPlayerDir().x, enemy->getEnemyToPlayerDir().y);
+		}
+	}
+	if (bossDestroyed)
+	{
+		std::cout << "boss destroyed!\n";
+		bossEnraged = false;
+		bossDestroyed = false;
+		nextWave();
 	}
 }
 
@@ -1299,6 +1497,18 @@ void Game::spawnEnemyOne(sf::Vector2f initialPosition, unsigned posInWave)
 	this->enemies.push_back(new Enemy(*this->textures["enemyOne"], type, hp, damage, fireRate, movementSpeed, newHitbox, initialPosition, posInWave));
 }
 
+void Game::spawnBounceEnemyOne(sf::Vector2f initialPosition, unsigned posInWave)
+{
+	sf::FloatRect newHitbox(8, 8, 16, 16);
+
+	int type = 10;
+	float hp = 20.f;
+	float damage = 1.f;
+	float fireRate = 50.f;
+	float movementSpeed = 1.f;
+	this->enemies.push_back(new Enemy(*this->textures["bounceEnemyOne"], type, hp, damage, fireRate, movementSpeed, newHitbox, initialPosition, posInWave));
+}
+
 void Game::spawnEnemyTwo(sf::Vector2f initialPosition, unsigned posInWave)
 {
 	sf::FloatRect newHitbox(8, 8, 16, 16);
@@ -1311,6 +1521,18 @@ void Game::spawnEnemyTwo(sf::Vector2f initialPosition, unsigned posInWave)
 	this->enemies.push_back(new Enemy(*this->textures["enemyTwo"], type, hp, damage, fireRate, movementSpeed, newHitbox, initialPosition, posInWave));
 }
 
+void Game::spawnCircleEnemyTwo(sf::Vector2f initialPosition, unsigned posInWave)
+{
+	sf::FloatRect newHitbox(8, 8, 16, 16);
+
+	float hp = 30.f;
+	float damage = 1.f;
+	float fireRate = 75.f;
+	float movementSpeed = 0.8f;
+	int type = 11;
+	this->enemies.push_back(new Enemy(*this->textures["circleEnemyTwo"], type, hp, damage, fireRate, movementSpeed, newHitbox, initialPosition, posInWave));
+}
+
 void Game::spawnEnemyThree(sf::Vector2f initialPosition, unsigned posInWave)
 {
 	sf::FloatRect newHitbox(11, 6, 10, 24);
@@ -1320,6 +1542,17 @@ void Game::spawnEnemyThree(sf::Vector2f initialPosition, unsigned posInWave)
 	float movementSpeed = 1.0f;
 	int type = 2;
 	this->enemies.push_back(new Enemy(*this->textures["enemyThree"], type, hp, damage, fireRate, movementSpeed, newHitbox, initialPosition, posInWave));
+}
+
+void Game::spawnBurstEnemyThree(sf::Vector2f initialPosition, unsigned posInWave)
+{
+	sf::FloatRect newHitbox(11, 6, 10, 24);
+	float hp = 20.f;
+	float damage = 1.f;
+	float fireRate = 80.f;
+	float movementSpeed = 1.0f;
+	int type = 12;
+	this->enemies.push_back(new Enemy(*this->textures["burstEnemyThree"], type, hp, damage, fireRate, movementSpeed, newHitbox, initialPosition, posInWave));
 }
 
 void Game::spawnEnemyFour(sf::Vector2f initialPosition, unsigned posInWave)
@@ -1338,40 +1571,96 @@ void Game::spawnBoss(sf::Vector2f initialPosition, unsigned posInWave)
 	sf::FloatRect newHitbox(13, 13, 38, 38);
 	float hp = 200.f;
 	float damage = 1.f;
-	float fireRate = 0.f;
+	float fireRate = 100.f;
 	float movementSpeed = 0.7f;
-	int type = 10;
+	int type = 100;
 	this->enemies.push_back(new Enemy(*this->textures["bossEnemy"], type, hp, damage, fireRate, movementSpeed, newHitbox, initialPosition, posInWave));
+}
+
+void Game::spawnRandomEnemy()
+{
+	sf::Vector2f initialPosition;
+	numEnemies++;
+	//get a random number from 0-99
+	int spawnRandEnemy = rand() % 100;
+	//30% chance to spawn enemy one
+	if (spawnRandEnemy < 30)
+	{
+		initialPosition = sf::Vector2f(window->getSize().x * 0.5f, window->getSize().y);
+		spawnEnemyOne(initialPosition, numEnemies);
+	}
+	//20% chance to spawn enemy two
+	else if (spawnRandEnemy < 50)
+	{
+		initialPosition = sf::Vector2f(window->getSize().x * 0.5f, window->getSize().y);
+		spawnEnemyTwo(initialPosition, numEnemies);
+	}
+	//15% chance to spawn enemy three
+	else if (spawnRandEnemy < 65)
+	{
+		initialPosition = sf::Vector2f(window->getSize().x * 0.5f, window->getSize().y - 50.f);
+		spawnEnemyThree(initialPosition, numEnemies);
+	}
+	//15% chance to spawn bounce enemy one
+	else if (spawnRandEnemy < 75)
+	{
+		initialPosition = sf::Vector2f(window->getSize().x * 0.5f, window->getSize().y);
+		spawnBounceEnemyOne(initialPosition, numEnemies);
+	}
+	//10% chance to spawn enemy four
+	else if (spawnRandEnemy < 84)
+	{
+		initialPosition = sf::Vector2f(window->getSize().x * 0.5f, window->getSize().y);
+		spawnEnemyFour(initialPosition, numEnemies);
+	}
+	//8% chance to spawn burst enemy
+	else if (spawnRandEnemy < 93)
+	{
+		initialPosition = sf::Vector2f(window->getSize().x * 0.5f, window->getSize().y);
+		spawnBurstEnemyThree(initialPosition, numEnemies);
+	}
+	//7% chance to spawn circle enemy
+	else if (spawnRandEnemy < 100)
+	{
+		initialPosition = sf::Vector2f(window->getSize().x * 0.5f, window->getSize().y);
+		spawnCircleEnemyTwo(initialPosition, numEnemies);
+	}
 }
 
 void Game::enemyOneFirePattern()
 {
 	//set the bullet hitbox
-	sf::FloatRect  bulletHitbox(1, 1, 6, 6);
+	sf::FloatRect bulletHitbox(1, 1, 6, 6);
 
 	//shoot enemy bullet
 	this->enemyBullets.push_back(new Bullet(*this->textures["enemyBullet"], 10, bulletHitbox, enemyPos, enemyAngle, enemyAimDir, 3.f));
 }
 
+void Game::bounceEnemyOneFirePattern()
+{
+	sf::FloatRect bulletHitbox(1, 1, 6, 6);
+	sf::Texture* bulletTexture = this->textures["bouncingEnemyBullet"];
+	int bulletType = 13;
+
+	this->enemyBullets.push_back(new Bullet(*bulletTexture, bulletType, bulletHitbox, enemyPos, enemyAngle, enemyAimDir, 3.f));
+}
+
 void Game::enemyTwoFirePattern()
 {
-	//sf::Vector2f initialEnemyAimDir(enemyAimDir);
-	sf::Vector2f newEnemyAimDir;
-
 	sf::FloatRect bulletHitbox(1, 1, 6, 6);
-	this->enemyBullets.push_back(new Bullet(*this->textures["enemyBullet"], 10, bulletHitbox, enemyPos, enemyAngle, enemyAimDir, 3.f));
+	sf::Texture* bulletTexture = this->textures["enemyBullet"];
+	int bulletType = 10;
 
-	newEnemyAimDir = sf::Vector2f(
-		enemyAimDir.x * (cos(pi / 20.f)) - enemyAimDir.y * (sin(pi / 20.f)),
-		enemyAimDir.y * (cos(pi / 20.f)) + enemyAimDir.x * (sin(pi / 20.f))
-	);
-	this->enemyBullets.push_back(new Bullet(*this->textures["enemyBullet"], 10, bulletHitbox, enemyPos, enemyAngle, newEnemyAimDir, 3.f));
+	fireSpread(bulletTexture, bulletHitbox, bulletType, 5.f, pi / 20.f);
+}
 
-	newEnemyAimDir = sf::Vector2f(
-		enemyAimDir.x * (cos(pi / 20.f)) + enemyAimDir.y * (sin(pi / 20.f)),
-		enemyAimDir.y * (cos(pi / 20.f)) - enemyAimDir.x * (sin(pi / 20.f))
-	);
-	this->enemyBullets.push_back(new Bullet(*this->textures["enemyBullet"], 10, bulletHitbox, enemyPos, enemyAngle, newEnemyAimDir, 3.f));
+void Game::circleEnemyTwoFirePattern()
+{
+	sf::FloatRect bulletHitbox(1, 1, 6, 6);
+	sf::Texture* bulletTexture = this->textures["enemyBullet"];
+	int bulletType = 10;
+
+	fireInCircle(bulletTexture, bulletHitbox, bulletType, enemyPos, 0);
 }
 
 void Game::enemyThreeFirePattern()
@@ -1380,192 +1669,279 @@ void Game::enemyThreeFirePattern()
 	this->enemyBullets.push_back(new Bullet(*this->textures["longEnemyBullet"], 11, bulletHitbox, enemyPos, enemyAngle, enemyAimDir, 10.f));
 }
 
+void Game::burstEnemyThreeFirePattern()
+{
+	sf::Texture* bulletTexture = this->textures["bigEnemyBullet"];
+	sf::FloatRect bulletHitbox(1, 1, 14, 14);
+	int bulletType = 12;
+
+	fireClusterShot(bulletTexture, bulletHitbox, bulletType);
+}
+
 void Game::enemyFourFirePattern(Enemy* enemy)
 {
-	enemy->setFireRate(10.f);
-	enemy->setBulletCounter(enemy->getBulletCounter() + 1);
-	int bulletCounter = enemy->getBulletCounter();
-	//on the first bullet, set the base direction to shoot at
-	if (bulletCounter == 1)
+	enemy->setFireRate(8.f);
+	sf::FloatRect bulletHitbox(1, 1, 6, 6);
+	sf::Texture* bulletTexture = this->textures["enemyBullet"];
+	int bulletType = 10;
+	float bulletOffset = pi / 9.f;
+	baseEnemyAimDir = sf::Vector2f(enemyAimDir);
+	if (enemy->getBulletCounter() < 7)
+		fireWave(bulletTexture, bulletHitbox, bulletType, bulletOffset, baseEnemyAimDir, enemy);
+	else
 	{
-		baseEnemyAimDir = sf::Vector2f(enemyAimDir);
-	}
-
-	switch (bulletCounter)
-	{
-	case 1:
-		enemyAimDir = sf::Vector2f(
-			baseEnemyAimDir.x * (cos(pi / 5.f)) + baseEnemyAimDir.y * (sin(pi / 5.f)),
-			baseEnemyAimDir.y * (cos(pi / 5.f)) - baseEnemyAimDir.x * (sin(pi / 5.f))
-		);
-		break;
-	case 2:
-		enemyAimDir = sf::Vector2f(
-			baseEnemyAimDir.x * (cos(pi / 10.f)) + baseEnemyAimDir.y * (sin(pi / 10.f)),
-			baseEnemyAimDir.y * (cos(pi / 10.f)) - baseEnemyAimDir.x * (sin(pi / 10.f))
-		);
-		break;
-	case 3:
-		enemyAimDir = sf::Vector2f(
-			baseEnemyAimDir.x * (cos(pi / 20.f)) + baseEnemyAimDir.y * (sin(pi / 20.f)),
-			baseEnemyAimDir.y * (cos(pi / 20.f)) - baseEnemyAimDir.x * (sin(pi / 20.f))
-		);
-		break;
-	case 4:
-		enemyAimDir = baseEnemyAimDir;
-		break;
-	case 5:
-		enemyAimDir = sf::Vector2f(
-			baseEnemyAimDir.x * (cos(pi / 20.f)) - baseEnemyAimDir.y * (sin(pi / 20.f)),
-			baseEnemyAimDir.y * (cos(pi / 20.f)) + baseEnemyAimDir.x * (sin(pi / 20.f))
-		);
-		break;
-	case 6:
-		enemyAimDir = sf::Vector2f(
-			baseEnemyAimDir.x * (cos(pi / 10.f)) - baseEnemyAimDir.y * (sin(pi / 10.f)),
-			baseEnemyAimDir.y * (cos(pi / 10.f)) + baseEnemyAimDir.x * (sin(pi / 10.f))
-		);
-		break;
-	case 7:
-		enemyAimDir = sf::Vector2f(
-			baseEnemyAimDir.x * (cos(pi / 5.f)) - baseEnemyAimDir.y * (sin(pi / 5.f)),
-			baseEnemyAimDir.y * (cos(pi / 5.f)) + baseEnemyAimDir.x * (sin(pi / 5.f))
-		);
 		enemy->setBulletCounter(0);
 		enemy->setFireRate(75.f);
-		break;
-	default:
-		enemy->setBulletCounter(0);
 	}
-
-	sf::FloatRect  bulletHitbox(1, 1, 6, 6);
-	this->enemyBullets.push_back(new Bullet(*this->textures["enemyBullet"], 10, bulletHitbox, enemyPos, enemyAngle, enemyAimDir, 3.f));
 }
 
 void Game::bossFirePattern(Enemy * enemy)
 {
-	enemy->setBulletCounter(enemy->getBulletCounter() + 1);
-	bossPatternTwo(enemy);
-	/*if (enemy->getBulletCounter() < 10)
-		bossPatternOne(enemy);
-	else
+	switch (bossPattern)
 	{
-		enemy->setFireRate(50.f);
-		enemy->setBulletCounter(0);
-	}*/
+	case 1:
+		if (enemy->getBulletCounter() < 10)
+			bossPatternOne(enemy);
+		else
+		{
+			if (bossEnraged)
+				enemy->setFireRate(60.f);
+			else
+				enemy->setFireRate(100.f);
+			enemy->setBulletCounter(0);
+			bossPattern = 0;
+		}
+		break;
+	case 2:
+		if (enemy->getBulletCounter() < 5)
+			bossPatternTwo(enemy);
+		else
+		{
+			if (bossEnraged)
+				enemy->setFireRate(60.f);
+			else
+				enemy->setFireRate(100.f);
+			enemy->setBulletCounter(0);
+			bossPattern = 0;
+		}
+		break;
+	case 3:
+		if (enemy->getBulletCounter() < 20)
+		{
+			bossPatternThree(enemy);
+		}
+		else
+		{
+			if (bossEnraged)
+				enemy->setFireRate(60.f);
+			else
+				enemy->setFireRate(100.f);
+			enemy->setBulletCounter(0);
+			bossPattern = 0;
+		}
+		break;
+	case 4:
+		if (enemy->getBulletCounter() < 7)
+			bossPatternFour(enemy);
+		else
+		{
+			if (bossEnraged)
+				enemy->setFireRate(60.f);
+			else
+				enemy->setFireRate(100.f);
+			enemy->setBulletCounter(0);
+			bossPattern = 0;
+		}
+		break;
+	}
 }
-/*
-	- big wave of bullets; covering the whole screen of like 10+ish bullets: 20%
-	- multiple waves of bullets, each in slightly different angles: 20%
-	- cluster of bullets that explode into all directions: 20%
-	- machine gun shots targeting the player for some time: 20%
-	- lasers!: 20%
-*/
 
 //big wave of bullets; covering the whole screen
 void Game::bossPatternOne(Enemy* enemy)
 {
+	enemy->setBulletCounter(enemy->getBulletCounter() + 1);
 	int randTime = time(0) + enemy->getBulletCounter();
 	srand(randTime);
 	float offset = static_cast<float>(rand() % 20);
 
-	enemy->setFireRate(10.f);
+	if (bossEnraged)
+		enemy->setFireRate(8.f);
+	else
+		enemy->setFireRate(10.f);
 	sf::FloatRect bulletHitbox(1, 1, 6, 6);
 	sf::Texture* bulletTexture = this->textures["enemyBullet"];
-	fireInCircle(bulletTexture, bulletHitbox, offset);
+	int bulletType = 10;
+	fireInCircle(bulletTexture, bulletHitbox, bulletType, enemyPos, offset);
 }
 
 //cluster of bullets that explode into all directions : 20 %
 void Game::bossPatternTwo(Enemy* enemy)
 {
-	enemy->setFireRate(50.f);
-	fireClusterShot(enemy);
+	if (bossEnraged)
+		enemy->setFireRate(40.f);
+	else
+		enemy->setFireRate(50.f);
+	sf::Texture* bulletTexture = this->textures["bigEnemyBullet"];
+	sf::FloatRect bulletHitbox(1, 1, 14, 14);
+	int bulletType = 12;
+
+	enemy->setBulletCounter(enemy->getBulletCounter() + 1);
+	fireClusterShot(bulletTexture, bulletHitbox, bulletType);
 }
 
-void Game::fireInCircle(sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, float offset)
+//machine gun shots targeting the player for some time : 20 %
+void Game::bossPatternThree(Enemy* enemy)
+{
+	if (bossEnraged)
+		enemy->setFireRate(6.4f);
+	else
+		enemy->setFireRate(8.f);
+	enemy->setBulletCounter(enemy->getBulletCounter() + 1);
+
+	sf::FloatRect bulletHitbox(1, 1, 6, 6);
+	sf::Texture* bulletTexture = this->textures["enemyBullet"];
+	int bulletType = 10;
+
+	fireSpread(bulletTexture, bulletHitbox, bulletType, 3.f, pi / 8.f);
+}
+
+//shoot a wave that bounces three times
+void Game::bossPatternFour(Enemy* enemy)
+{
+	if (bossEnraged)
+		enemy->setFireRate(6.4f);
+	else
+		enemy->setFireRate(8.f);
+	sf::FloatRect bulletHitbox(1, 1, 6, 6);
+	sf::Texture* bulletTexture = this->textures["bouncingEnemyBullet"];
+	int bulletType = 13;
+	float bulletOffset = pi / 9.f;
+	baseEnemyAimDir = sf::Vector2f(enemyAimDir);
+
+	fireWave(bulletTexture, bulletHitbox, bulletType, bulletOffset, baseEnemyAimDir, enemy);
+}
+
+//fire bullets in a spread
+void Game::fireSpread(sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed, float spreadDegree)
+{
+	sf::Vector2f newEnemyAimDir;
+	this->enemyBullets.push_back(new Bullet(*this->textures["enemyBullet"], bulletType, bulletHitbox, enemyPos, enemyAngle, enemyAimDir, bulletSpeed));
+
+	newEnemyAimDir = sf::Vector2f(
+		enemyAimDir.x * (cos(spreadDegree)) - enemyAimDir.y * (sin(spreadDegree)),
+		enemyAimDir.y * (cos(spreadDegree)) + enemyAimDir.x * (sin(spreadDegree))
+	);
+	this->enemyBullets.push_back(new Bullet(*this->textures["enemyBullet"], bulletType, bulletHitbox, enemyPos, enemyAngle, newEnemyAimDir, bulletSpeed));
+
+	newEnemyAimDir = sf::Vector2f(
+		enemyAimDir.x * (cos(spreadDegree)) + enemyAimDir.y * (sin(spreadDegree)),
+		enemyAimDir.y * (cos(spreadDegree)) - enemyAimDir.x * (sin(spreadDegree))
+	);
+	this->enemyBullets.push_back(new Bullet(*this->textures["enemyBullet"], bulletType, bulletHitbox, enemyPos, enemyAngle, newEnemyAimDir, bulletSpeed));
+}
+
+//fire bullets in a wave
+void Game::fireWave(sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletOffset, sf::Vector2f baseAimDir, Enemy* enemy)
+{
+	//on the first bullet, set the base direction to shoot at
+	enemy->setBulletCounter(enemy->getBulletCounter() + 1);
+	int bulletCounter = enemy->getBulletCounter();
+
+	if (bulletCounter == 1)
+	{
+		baseEnemyAimDir = sf::Vector2f(baseAimDir);
+	}
+
+	switch (bulletCounter)
+	{
+	case 1:
+		//shoot 36 degrees
+		enemyAimDir = sf::Vector2f(
+			baseEnemyAimDir.x * (cos(bulletOffset * 3)) + baseEnemyAimDir.y * (sin(bulletOffset * 3)),
+			baseEnemyAimDir.y * (cos(bulletOffset * 3)) - baseEnemyAimDir.x * (sin(bulletOffset * 3))
+		);
+		break;
+	case 2:
+		//shoot 18 degrees
+		enemyAimDir = sf::Vector2f(
+			baseEnemyAimDir.x * (cos(bulletOffset * 2)) + baseEnemyAimDir.y * (sin(bulletOffset * 2)),
+			baseEnemyAimDir.y * (cos(bulletOffset * 2)) - baseEnemyAimDir.x * (sin(bulletOffset * 2))
+		);
+		break;
+	case 3:
+		//shoot 9 degrees
+		enemyAimDir = sf::Vector2f(
+			baseEnemyAimDir.x * (cos(bulletOffset)) + baseEnemyAimDir.y * (sin(bulletOffset)),
+			baseEnemyAimDir.y * (cos(bulletOffset)) - baseEnemyAimDir.x * (sin(bulletOffset))
+		);
+		break;
+	case 4:
+		//shoot at the players initial position (90 degrees)
+		enemyAimDir = baseEnemyAimDir;
+		break;
+	case 5:
+		//shoot
+		enemyAimDir = sf::Vector2f(
+			baseEnemyAimDir.x * (cos(bulletOffset)) - baseEnemyAimDir.y * (sin(bulletOffset)),
+			baseEnemyAimDir.y * (cos(bulletOffset)) + baseEnemyAimDir.x * (sin(bulletOffset))
+		);
+		break;
+	case 6:
+		enemyAimDir = sf::Vector2f(
+			baseEnemyAimDir.x * (cos(bulletOffset * 2)) - baseEnemyAimDir.y * (sin(bulletOffset * 2)),
+			baseEnemyAimDir.y * (cos(bulletOffset * 2)) + baseEnemyAimDir.x * (sin(bulletOffset * 2))
+		);
+		break;
+	case 7:
+		enemyAimDir = sf::Vector2f(
+			baseEnemyAimDir.x * (cos(bulletOffset * 3)) - baseEnemyAimDir.y * (sin(bulletOffset * 3)),
+			baseEnemyAimDir.y * (cos(bulletOffset * 3)) + baseEnemyAimDir.x * (sin(bulletOffset * 3))
+		);
+		break;
+	default:
+		enemy->setBulletCounter(0);
+	}
+
+	this->enemyBullets.push_back(new Bullet(*bulletTexture, bulletType, bulletHitbox, enemyPos, enemyAngle, enemyAimDir, 3.f));
+}
+
+//fire bullets in a circle
+void Game::fireInCircle(sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType, sf::Vector2f centerPos, float offset)
 {
 	float degree = offset;
 	float radians;
-
-	radians = degree * pi / 180.f; //180
-	sf::Vector2f aimDir(cos(radians), sin(radians));
-	enemyBullets.push_back(new Bullet(*bulletTexture, 10, bulletHitbox, enemyPos, enemyAngle, aimDir, 3.f));
-
-	/*
-	FIRES THE TOP SEMI CIRCLE
-	*/
-	degree += 30.f; //210
-	radians = degree * pi / 180.f;
-	aimDir = sf::Vector2f(cos(radians), sin(radians));
-	enemyBullets.push_back(new Bullet(*bulletTexture, 10, bulletHitbox, enemyPos, enemyAngle, aimDir, 3.f));
-
-	degree += 30.f; //240
-	radians = degree * pi / 180.f;
-	aimDir = sf::Vector2f(cos(radians), sin(radians));
-	enemyBullets.push_back(new Bullet(*bulletTexture, 10, bulletHitbox, enemyPos, enemyAngle, aimDir, 3.f));
-
-	degree += 30.f; //270
-	radians = degree * pi / 180.f;
-	aimDir = sf::Vector2f(cos(radians), sin(radians));
-	enemyBullets.push_back(new Bullet(*bulletTexture, 10, bulletHitbox, enemyPos, enemyAngle, aimDir, 3.f));
-
-	degree += 30.f; //300
-	radians = degree * pi / 180.f;
-	aimDir = sf::Vector2f(cos(radians), sin(radians));
-	enemyBullets.push_back(new Bullet(*bulletTexture, 10, bulletHitbox, enemyPos, enemyAngle, aimDir, 3.f));
-
-	degree += 30.f; //330
-	radians = degree * pi / 180.f;
-	aimDir = sf::Vector2f(cos(radians), sin(radians));
-	enemyBullets.push_back(new Bullet(*bulletTexture, 10, bulletHitbox, enemyPos, enemyAngle, aimDir, 3.f));
-
-	degree += 30.f; //360
-	radians = degree * pi / 180.f;
-	aimDir = sf::Vector2f(cos(radians), sin(radians));
-	enemyBullets.push_back(new Bullet(*bulletTexture, 10, bulletHitbox, enemyPos, enemyAngle, aimDir, 3.f));
-
-	/*
-	FIRES THE BOTTOM SEMI CIRCLE
-	*/
-	degree += 30.f; //30
-	radians = degree * pi / 180.f;
-	aimDir = sf::Vector2f(cos(radians), sin(radians));
-	enemyBullets.push_back(new Bullet(*bulletTexture, 10, bulletHitbox, enemyPos, enemyAngle, aimDir, 3.f));
-
-	degree += 30.f; //60
-	radians = degree * pi / 180.f;
-	aimDir = sf::Vector2f(cos(radians), sin(radians));
-	enemyBullets.push_back(new Bullet(*bulletTexture, 10, bulletHitbox, enemyPos, enemyAngle, aimDir, 3.f));
-
-	degree += 30.f; //90
-	radians = degree * pi / 180.f;
-	aimDir = sf::Vector2f(cos(radians), sin(radians));
-	enemyBullets.push_back(new Bullet(*bulletTexture, 10, bulletHitbox, enemyPos, enemyAngle, aimDir, 3.f));
-
-	degree += 30.f; //120
-	radians = degree * pi / 180.f;
-	aimDir = sf::Vector2f(cos(radians), sin(radians));
-	enemyBullets.push_back(new Bullet(*bulletTexture, 10, bulletHitbox, enemyPos, enemyAngle, aimDir, 3.f));
-
-	degree += 30.f; //150
-	radians = degree * pi / 180.f;
-	aimDir = sf::Vector2f(cos(radians), sin(radians));
-	enemyBullets.push_back(new Bullet(*bulletTexture, 10, bulletHitbox, enemyPos, enemyAngle, aimDir, 3.f));
+	sf::Vector2f aimDir;
+	for (int i = 0; i < 12; i++)
+	{
+		radians = degree * pi / 180.f;
+		aimDir = sf::Vector2f(cos(radians), sin(radians));
+		enemyBullets.push_back(new Bullet(*bulletTexture, bulletType, bulletHitbox, centerPos, enemyAngle, aimDir, 3.f));
+		degree += 30.f;
+	}
 }
 
-void Game::fireClusterShot(Enemy* enemy)
+//fire bullets as a cluster
+void Game::fireClusterShot(sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType)
 {
-	sf::FloatRect bulletHitbox(1, 1, 14, 14);
-	enemyBullets.push_back(new Bullet(*this->textures["bigEnemyBullet"], 12, bulletHitbox, enemyPos, enemyAngle, enemyAimDir, 2.f));
+	enemyBullets.push_back(new Bullet(*bulletTexture, bulletType, bulletHitbox, enemyPos, enemyAngle, enemyAimDir, 3.f));
 
 	Bullet* bullet = enemyBullets.back();
 	bullet->setBasePlayerPos(playerPos);
 }
 
+//burst the cluster shot
+void Game::burstClusterShot(sf::Vector2f burstPos)
+{
+	sf::FloatRect bulletHitbox(1, 1, 6, 6);
+	sf::Texture* bulletTexture = this->textures["enemyBullet"];
+	int bulletType = 10;
+	fireInCircle(bulletTexture, bulletHitbox, bulletType, burstPos, 0);
+}
+
 //runs the game
 void Game::run()
 {
-	while (running())// && !game.endGame)
+	while (running())
 	{
 		this->updatePollEvents();
 		if (player->getHp() > 0.f)

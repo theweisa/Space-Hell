@@ -46,6 +46,11 @@ const float Character::getHp() const
 	return hp;
 }
 
+const float Character::getMaxHp() const
+{
+	return hpMax;
+}
+
 //mutator
 void Character::setFireRate(float newFireRate)
 {

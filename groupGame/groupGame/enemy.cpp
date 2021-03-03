@@ -75,8 +75,7 @@ void Enemy::setBulletCounter(int newBulletCounter)
 void Enemy::update()
 {
 	this->updateFireRate();
-	if (type != 10)
-		this->updateRotation();
+	this->updateRotation();
 }
 
 

@@ -1,4 +1,4 @@
-﻿Build started 3/1/2021 11:01:36 PM.
+﻿Build started 3/2/2021 9:16:35 PM.
      1>Project "C:\Users\weian\Desktop\groupProject\groupGame\groupGame\groupGame.vcxproj" on node 2 (Build target(s)).
      1>Building with tools version "15.0".
        Target "EnableIntermediateOutputPathMismatchWarning" skipped, due to false condition; ('$(RestoreProjectStyle)' == 'PackageReference') was evaluated as ('' == 'PackageReference').
@@ -22,10 +22,10 @@
      1>Target "SetTelemetryEnvironmentVariables" in file "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.Cpp.DesignTime.targets" from project "C:\Users\weian\Desktop\groupProject\groupGame\groupGame\groupGame.vcxproj" (target "Build" depends on it):
        Using "SetEnv" task from assembly "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.Build.CppTasks.Common.dll".
        Task "SetEnv"
-         VSTEL_SolutionSessionID={6F059988-1701-4C3A-82DD-8198A23DD52E}
+         VSTEL_SolutionSessionID={CEB8529A-701F-41B4-901D-91678BC14E62}
        Done executing task "SetEnv".
        Task "SetEnv"
-         VSTEL_CurrentSolutionBuildID=1429018078
+         VSTEL_CurrentSolutionBuildID=1509119968
        Done executing task "SetEnv".
        Task "SetEnv"
          VSTEL_ProjectID={E8BC4FE6-0B1B-4B00-90E0-65AC24EC291E}
@@ -284,28 +284,18 @@
          	C:\USERS\WEIAN\DESKTOP\GROUPPROJECT\GROUPGAME\GROUPGAME\DEBUG\GAME.OBJ
          	C:\USERS\WEIAN\DESKTOP\GROUPPROJECT\GROUPGAME\GROUPGAME\DEBUG\GROUPGAME.OBJ
          	C:\USERS\WEIAN\DESKTOP\GROUPPROJECT\GROUPGAME\GROUPGAME\DEBUG\PLAYER.OBJ
-         game.cpp will be compiled because C:\Users\weian\Desktop\groupProject\groupGame\groupGame\game.cpp was modified at 3/1/2021 11:01:36 PM.
+         game.cpp will be compiled because C:\Users\weian\Desktop\groupProject\groupGame\groupGame\game.cpp was modified at 3/2/2021 9:16:29 PM.
          Outputs for C:\USERS\WEIAN\DESKTOP\GROUPPROJECT\GROUPGAME\GROUPGAME\GAME.CPP:
          	C:\USERS\WEIAN\DESKTOP\GROUPPROJECT\GROUPGAME\GROUPGAME\DEBUG\GAME.OBJ
          Write Tracking Logs:
          	Debug\groupGame.tlog\CL.write.1.tlog
          Environment Variables passed to tool:
-           VS_UNICODE_OUTPUT=948
+           VS_UNICODE_OUTPUT=2132
          C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\bin\HostX86\x86\CL.exe /c /I"C:\Users\weian\Desktop\groupProject\SFML-2.5.1\include" /ZI /JMC /nologo /W3 /WX- /diagnostics:classic /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /permissive- /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug\\" /Fd"Debug\vc141.pdb" /Gd /TP /analyze- /FC /errorReport:prompt game.cpp
          Tracking command:
-         C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\Tracker.exe /d "C:\Program Files (x86)\MSBuild\15.0\FileTracker\FileTracker32.dll" /i C:\Users\weian\Desktop\groupProject\groupGame\groupGame\Debug\groupGame.tlog /r C:\USERS\WEIAN\DESKTOP\GROUPPROJECT\GROUPGAME\GROUPGAME\GAME.CPP /b MSBuildConsole_CancelEventa287a0b737974baea6b5588bc6de4e10  /c "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\bin\HostX86\x86\CL.exe"  /c /I"C:\Users\weian\Desktop\groupProject\SFML-2.5.1\include" /ZI /JMC /nologo /W3 /WX- /diagnostics:classic /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /permissive- /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug\\" /Fd"Debug\vc141.pdb" /Gd /TP /analyze- /FC /errorReport:prompt game.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\Tracker.exe /d "C:\Program Files (x86)\MSBuild\15.0\FileTracker\FileTracker32.dll" /i C:\Users\weian\Desktop\groupProject\groupGame\groupGame\Debug\groupGame.tlog /r C:\USERS\WEIAN\DESKTOP\GROUPPROJECT\GROUPGAME\GROUPGAME\GAME.CPP /b MSBuildConsole_CancelEvent94cb6c91f6ab462ebc75f6dc69d04e51  /c "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\bin\HostX86\x86\CL.exe"  /c /I"C:\Users\weian\Desktop\groupProject\SFML-2.5.1\include" /ZI /JMC /nologo /W3 /WX- /diagnostics:classic /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /permissive- /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug\\" /Fd"Debug\vc141.pdb" /Gd /TP /analyze- /FC /errorReport:prompt game.cpp
          game.cpp
-     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(495): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
-                 with
-                 [
-                     T=unsigned int
-                 ]
-     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(505): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
-                 with
-                 [
-                     T=unsigned int
-                 ]
-     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(840): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(898): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
                  with
                  [
                      T=unsigned int
@@ -314,7 +304,7 @@
                  [
                      T=float
                  ]
-     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(847): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(905): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
                  with
                  [
                      T=unsigned int
@@ -323,7 +313,7 @@
                  [
                      T=float
                  ]
-     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(854): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(912): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
                  with
                  [
                      T=unsigned int
@@ -332,7 +322,7 @@
                  [
                      T=float
                  ]
-     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(886): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(944): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
                  with
                  [
                      T=unsigned int
@@ -341,7 +331,7 @@
                  [
                      T=float
                  ]
-     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(890): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(948): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
                  with
                  [
                      T=unsigned int
@@ -350,7 +340,7 @@
                  [
                      T=float
                  ]
-     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(949): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1078): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
                  with
                  [
                      T=unsigned int
@@ -359,7 +349,7 @@
                  [
                      T=float
                  ]
-     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(993): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1082): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
                  with
                  [
                      T=unsigned int
@@ -368,7 +358,7 @@
                  [
                      T=float
                  ]
-     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(997): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1131): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
                  with
                  [
                      T=unsigned int
@@ -377,7 +367,7 @@
                  [
                      T=float
                  ]
-     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1075): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1203): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
                  with
                  [
                      T=unsigned int
@@ -386,7 +376,7 @@
                  [
                      T=float
                  ]
-     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1083): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1211): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
                  with
                  [
                      T=unsigned int
@@ -395,7 +385,7 @@
                  [
                      T=float
                  ]
-     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1087): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1285): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
                  with
                  [
                      T=unsigned int
@@ -404,7 +394,7 @@
                  [
                      T=float
                  ]
-     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1146): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1346): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
                  with
                  [
                      T=unsigned int
@@ -413,7 +403,7 @@
                  [
                      T=float
                  ]
-     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1165): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1354): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
                  with
                  [
                      T=unsigned int
@@ -422,7 +412,7 @@
                  [
                      T=float
                  ]
-     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1176): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1358): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
                  with
                  [
                      T=unsigned int
@@ -431,7 +421,7 @@
                  [
                      T=float
                  ]
-     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1183): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1378): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
                  with
                  [
                      T=unsigned int
@@ -440,7 +430,61 @@
                  [
                      T=float
                  ]
-     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1468): warning C4244: 'initializing': conversion from 'time_t' to 'int', possible loss of data
+     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1589): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+                 with
+                 [
+                     T=unsigned int
+                 ]
+                 and
+                 [
+                     T=float
+                 ]
+     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1595): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+                 with
+                 [
+                     T=unsigned int
+                 ]
+                 and
+                 [
+                     T=float
+                 ]
+     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1607): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+                 with
+                 [
+                     T=unsigned int
+                 ]
+                 and
+                 [
+                     T=float
+                 ]
+     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1613): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+                 with
+                 [
+                     T=unsigned int
+                 ]
+                 and
+                 [
+                     T=float
+                 ]
+     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1619): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+                 with
+                 [
+                     T=unsigned int
+                 ]
+                 and
+                 [
+                     T=float
+                 ]
+     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1625): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+                 with
+                 [
+                     T=unsigned int
+                 ]
+                 and
+                 [
+                     T=float
+                 ]
+     1>c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1763): warning C4244: 'initializing': conversion from 'time_t' to 'int', possible loss of data
        Done executing task "CL".
      1>Done building target "ClCompile" in project "groupGame.vcxproj".
        Target "RunSelectedFileNativeCodeAnalysis" skipped, due to false condition; ('$(RunCppAnalysis)'=='true' and '$(SelectedFiles)'!='') was evaluated as ('false'=='true' and ''!='').
@@ -595,7 +639,7 @@
          	C:\PROGRAM FILES (X86)\WINDOWS KITS\10\LIB\10.0.17763.0\UCRT\X86\UCRTD.LIB
          Source compilation required: input C:\USERS\WEIAN\DESKTOP\GROUPPROJECT\GROUPGAME\GROUPGAME\DEBUG\GAME.OBJ is newer than output C:\USERS\WEIAN\DESKTOP\GROUPPROJECT\GROUPGAME\DEBUG\GROUPGAME.PDB.
          Environment Variables passed to tool:
-           VS_UNICODE_OUTPUT=1708
+           VS_UNICODE_OUTPUT=2096
          C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\bin\HostX86\x86\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\weian\Desktop\groupProject\groupGame\Debug\groupGame.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Users\weian\Desktop\groupProject\SFML-2.5.1\lib" "sfml-graphics-d.lib" "sfml-window-d.lib" "sfml-audio-d.lib" "sfml-system-d.lib" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG:FASTLINK /PDB:"C:\Users\weian\Desktop\groupProject\groupGame\Debug\groupGame.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\weian\Desktop\groupProject\groupGame\Debug\groupGame.lib" /MACHINE:X86 Debug\bullet.obj
          Debug\character.obj
          Debug\enemy.obj
@@ -604,7 +648,7 @@
          Debug\groupGame.obj
          Debug\player.obj
          Tracking command:
-         C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\Tracker.exe /a /d "C:\Program Files (x86)\MSBuild\15.0\FileTracker\FileTracker32.dll" /i C:\Users\weian\Desktop\groupProject\groupGame\groupGame\Debug\groupGame.tlog /r "C:\USERS\WEIAN\DESKTOP\GROUPPROJECT\GROUPGAME\GROUPGAME\DEBUG\BULLET.OBJ|C:\USERS\WEIAN\DESKTOP\GROUPPROJECT\GROUPGAME\GROUPGAME\DEBUG\CHARACTER.OBJ|C:\USERS\WEIAN\DESKTOP\GROUPPROJECT\GROUPGAME\GROUPGAME\DEBUG\ENEMY.OBJ|C:\USERS\WEIAN\DESKTOP\GROUPPROJECT\GROUPGAME\GROUPGAME\DEBUG\ENTITY.OBJ|C:\USERS\WEIAN\DESKTOP\GROUPPROJECT\GROUPGAME\GROUPGAME\DEBUG\GAME.OBJ|C:\USERS\WEIAN\DESKTOP\GROUPPROJECT\GROUPGAME\GROUPGAME\DEBUG\GROUPGAME.OBJ|C:\USERS\WEIAN\DESKTOP\GROUPPROJECT\GROUPGAME\GROUPGAME\DEBUG\PLAYER.OBJ" /b MSBuildConsole_CancelEventdcf434d639324022af534ef8535f34d7  /c "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\bin\HostX86\x86\link.exe"  /ERRORREPORT:PROMPT /OUT:"C:\Users\weian\Desktop\groupProject\groupGame\Debug\groupGame.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Users\weian\Desktop\groupProject\SFML-2.5.1\lib" "sfml-graphics-d.lib" "sfml-window-d.lib" "sfml-audio-d.lib" "sfml-system-d.lib" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG:FASTLINK /PDB:"C:\Users\weian\Desktop\groupProject\groupGame\Debug\groupGame.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\weian\Desktop\groupProject\groupGame\Debug\groupGame.lib" /MACHINE:X86 Debug\bullet.obj
+         C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\Tracker.exe /a /d "C:\Program Files (x86)\MSBuild\15.0\FileTracker\FileTracker32.dll" /i C:\Users\weian\Desktop\groupProject\groupGame\groupGame\Debug\groupGame.tlog /r "C:\USERS\WEIAN\DESKTOP\GROUPPROJECT\GROUPGAME\GROUPGAME\DEBUG\BULLET.OBJ|C:\USERS\WEIAN\DESKTOP\GROUPPROJECT\GROUPGAME\GROUPGAME\DEBUG\CHARACTER.OBJ|C:\USERS\WEIAN\DESKTOP\GROUPPROJECT\GROUPGAME\GROUPGAME\DEBUG\ENEMY.OBJ|C:\USERS\WEIAN\DESKTOP\GROUPPROJECT\GROUPGAME\GROUPGAME\DEBUG\ENTITY.OBJ|C:\USERS\WEIAN\DESKTOP\GROUPPROJECT\GROUPGAME\GROUPGAME\DEBUG\GAME.OBJ|C:\USERS\WEIAN\DESKTOP\GROUPPROJECT\GROUPGAME\GROUPGAME\DEBUG\GROUPGAME.OBJ|C:\USERS\WEIAN\DESKTOP\GROUPPROJECT\GROUPGAME\GROUPGAME\DEBUG\PLAYER.OBJ" /b MSBuildConsole_CancelEventd5bf9d72253c4bb8acfffee2fe3e9cd9  /c "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\bin\HostX86\x86\link.exe"  /ERRORREPORT:PROMPT /OUT:"C:\Users\weian\Desktop\groupProject\groupGame\Debug\groupGame.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Users\weian\Desktop\groupProject\SFML-2.5.1\lib" "sfml-graphics-d.lib" "sfml-window-d.lib" "sfml-audio-d.lib" "sfml-system-d.lib" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG:FASTLINK /PDB:"C:\Users\weian\Desktop\groupProject\groupGame\Debug\groupGame.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\weian\Desktop\groupProject\groupGame\Debug\groupGame.lib" /MACHINE:X86 Debug\bullet.obj
          Debug\character.obj
          Debug\enemy.obj
          Debug\entity.obj
@@ -749,26 +793,30 @@ Build succeeded.
 
        "C:\Users\weian\Desktop\groupProject\groupGame\groupGame\groupGame.vcxproj" (Build target) (1) ->
        (ClCompile target) -> 
-         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(495): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
-         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(505): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
-         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(840): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
-         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(847): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
-         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(854): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
-         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(886): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
-         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(890): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
-         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(949): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
-         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(993): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
-         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(997): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
-         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1075): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
-         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1083): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
-         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1087): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
-         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1146): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
-         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1165): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
-         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1176): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
-         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1183): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
-         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1468): warning C4244: 'initializing': conversion from 'time_t' to 'int', possible loss of data
+         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(898): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(905): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(912): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(944): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(948): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1078): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1082): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1131): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1203): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1211): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1285): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1346): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1354): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1358): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1378): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1589): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1595): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1607): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1613): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1619): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1625): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+         c:\users\weian\desktop\groupproject\groupgame\groupgame\game.cpp(1763): warning C4244: 'initializing': conversion from 'time_t' to 'int', possible loss of data
 
-    18 Warning(s)
+    22 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:02.50
+Time Elapsed 00:00:01.85

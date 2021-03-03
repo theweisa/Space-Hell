@@ -14,6 +14,7 @@ public:
 	const bool canFire();
 	const float getDamage() const;
 	const float getHp() const;
+	const float getMaxHp() const;
 
 	//mutator
 	void setFireRate(float newFireRate);
