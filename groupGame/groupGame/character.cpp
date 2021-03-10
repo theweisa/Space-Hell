@@ -60,5 +60,10 @@ void Character::setFireRate(float newFireRate)
 
 void Character::addHP() {
 
-	hp = hpMax;
+	this->hp++;
+}
+
+void Character::addDmg() {
+
+	this->damage = this->damage + 2;
 }

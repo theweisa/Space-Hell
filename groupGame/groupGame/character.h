@@ -24,6 +24,7 @@ public:
 
 	//upgrades function
 	void addHP();
+	void addDmg();
 
 protected:
 	float damage;

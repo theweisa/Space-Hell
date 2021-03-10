@@ -64,7 +64,7 @@ void Game::initVariables()
 
 	this->points = 0;
 	this->combo = 1;
-	this->currentWave = 10;
+	this->currentWave = 1;
 }
 
 //initialize window
@@ -150,6 +150,9 @@ void Game::initTextures()
 
 	this->textures["RTUpgrade"] = new sf::Texture();
 	this->textures["RTUpgrade"]->loadFromFile("Textures/star.png");
+
+	this->textures["DMGUpgrade"] = new sf::Texture();
+	this->textures["DMGUpgrade"]->loadFromFile("Textures/mushroom.png");
 }
 
 void Game::initGUI()
@@ -703,7 +706,7 @@ void Game::updateEnemyCollision()
 
 			if (dropChance > 10)
 			{
-				int type_Generator = rand() % 5;
+				int type_Generator = rand() % 6;
 
 				switch (type_Generator) {
 
@@ -725,7 +728,10 @@ void Game::updateEnemyCollision()
 				case(3):
 					this->upgrades.push_back(new Upgrade(*this->textures["RTUpgrade"], this->enemies[enemyVectPos]->getPosition(), 500.f, type_Generator));
 					std::cout << "Inserting a FIRERT powerup!" << std::endl;
-
+					break;
+				case(4):
+					this->upgrades.push_back(new Upgrade(*this->textures["DMGUpgrade"], this->enemies[enemyVectPos]->getPosition(), 500.f, type_Generator));
+					std::cout << "Inserting a DMGUP powerup!" << std::endl;
 				}
 			}
 
@@ -821,6 +827,11 @@ void Game::updatePlayerCollision()
 				case(3):
 					this->player->RTaliveTimerReset();
 					this->player->updateRTUpgrade(true, 500.f);
+					break;
+				
+				case(4):
+					this->player->addDmg();
+
 				}
 				this->upgrades.erase(this->upgrades.begin() + i);
 				std::cout << "Powerup entity deleted!" << std::endl;
