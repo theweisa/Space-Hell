@@ -64,7 +64,7 @@ void Game::initVariables()
 
 	this->points = 0;
 	this->combo = 1;
-	this->currentWave = 10;
+	this->currentWave = 1;
 }
 
 //initialize window
@@ -137,6 +137,22 @@ void Game::initTextures()
 
 	this->textures["spaceBackground"] = new sf::Texture();
 	this->textures["spaceBackground"]->loadFromFile("Textures/space_background.jpg");
+
+	//Ian's code(Upgrades)
+	this->textures["DBRayupgrades"] = new sf::Texture();
+	this->textures["DBRayupgrades"]->loadFromFile("Textures/power_up.png");
+
+	this->textures["SPRayUpgrade"] = new sf::Texture();
+	this->textures["SPRayUpgrade"]->loadFromFile("Textures/spread_shot.png");
+
+	this->textures["HPUpgrade"] = new sf::Texture();
+	this->textures["HPUpgrade"]->loadFromFile("Textures/hp_upgrade.png");
+
+	this->textures["RTUpgrade"] = new sf::Texture();
+	this->textures["RTUpgrade"]->loadFromFile("Textures/star.png");
+
+	this->textures["DMGUpgrade"] = new sf::Texture();
+	this->textures["DMGUpgrade"]->loadFromFile("Textures/mushroom.png");
 }
 
 void Game::initGUI()
@@ -224,7 +240,7 @@ void Game::initEnemy()
 */
 
 //update the game 
-void Game::update()
+void Game::update(const float& dt)
 {
 	this->updateView();
 	//updates mouse events
@@ -249,6 +265,17 @@ void Game::update()
 	this->updateEnemyCollision();
 
 	this->updateGUI();
+
+	//update timer for non picked-up upgrades
+	this->upgradesUpdate(dt);
+
+	//update timer for pickedup weapon upgrades
+	this->gunUpdate(dt);
+
+	//update timer for fire rate
+	this->fireRTUpdate(dt);
+
+	this->updateGUI();
 }
 
 void Game::updateView()
@@ -267,7 +294,7 @@ void Game::updateMousePos()
 	playerPos = sf::Vector2f(this->player->getPos().x, this->player->getPos().y);
 	//formula for direction: d.x = (m.x - p.x) / sqrt(p.x^2 - m.x^2) + (p.y^2 - m.y^2))
 	playerAimDir = mousePosView - playerPos;
-	playerAimDir = playerAimDir / sqrt(pow(playerAimDir.x, 2) + pow(playerAimDir.y, 2));
+	playerAimDir = playerAimDir / static_cast<float>(sqrt(pow(playerAimDir.x, 2) + pow(playerAimDir.y, 2)));
 
 	//get the angle of the mouse relative to the player
 	mouseAngle = -atan2(player->getPos().x - mousePosView.x, player->getPos().y - mousePosView.y) * 180.f / pi;
@@ -295,7 +322,58 @@ void Game::updatePlayer()
 	//if player presses space and can fire, shoot
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && this->player->canFire())
 	{
-		this->playerBullets.push_back(new Bullet(*this->textures["playerBullet"], 0, playerBulletHitbox, playerPos, mouseAngle, playerAimDir, 10.f));
+		float fireRT;
+		float SPfireRT;//spread firerate
+
+		if (this->fireRTStatus()) {
+			fireRT = 20.f;
+			SPfireRT = 13.f;
+		}
+		else {
+			fireRT = 10.f;
+			SPfireRT = 7.5f;
+		}
+
+		//std::cout << mouseAngle << std::endl;
+		//std::cout << "Gun level: " << this->player->getGunLevel() << std::endl;
+		if (this->gunStatus()) {
+
+			switch (this->player->getGunLevel()) {
+
+			case(0):
+				//std::cout << "Player pos :" << this->player->getPos().x << " " << this->player->getPos().y << std::endl;
+
+				//std::cout << "Shoot double ray bullets" << std::endl;
+				this->playerBullets.push_back(new Bullet(*this->textures["playerBullet"], 0, playerBulletHitbox, Vector2f(this->player->getPos().x + (25.f * cos(abs(mouseAngle))), this->player->getPos().y + (25.f * sin(abs(mouseAngle)))), mouseAngle, playerAimDir, fireRT));
+				this->playerBullets.push_back(new Bullet(*this->textures["playerBullet"], 0, playerBulletHitbox, Vector2f(this->player->getPos().x - (25.f * cos(abs(mouseAngle))), this->player->getPos().y - (25.f * sin(abs(mouseAngle)))), mouseAngle, playerAimDir, fireRT));
+
+				break;
+
+			case(1):
+				//std::cout << "Shoot spread bullets" << std::endl;
+				Vector2f newPlayerDir;
+				this->playerBullets.push_back(new Bullet(*this->textures["playerBullet"], 0, playerBulletHitbox, playerPos, mouseAngle, playerAimDir, SPfireRT));
+
+				newPlayerDir = Vector2f(
+					playerAimDir.x * (cos(pi / 20.f)) - playerAimDir.x * (sin(pi / 20.f)),
+					playerAimDir.y * (cos(pi / 20.f)) + playerAimDir.x * (sin(pi / 20.f)));
+
+				this->playerBullets.push_back(new Bullet(*this->textures["playerBullet"], 0, playerBulletHitbox, playerPos, mouseAngle, newPlayerDir, SPfireRT));
+
+				newPlayerDir = Vector2f(
+					playerAimDir.x * (cos(pi / 20.f)) + playerAimDir.x * (sin(pi / 20.f)),
+					playerAimDir.y * (cos(pi / 20.f)) - playerAimDir.x * (sin(pi / 20.f)));
+
+				this->playerBullets.push_back(new Bullet(*this->textures["playerBullet"], 0, playerBulletHitbox, playerPos, mouseAngle, newPlayerDir, SPfireRT));
+				break;
+			}
+
+
+		}
+		else {
+			this->playerBullets.push_back(new Bullet(*this->textures["playerBullet"], 0, playerBulletHitbox, playerPos, mouseAngle, playerAimDir, fireRT));
+
+		}
 	}
 }
 
@@ -369,7 +447,7 @@ void Game::updateEnemies()
 
 		//gets the cos and sin values of the enemy compared to the player;
 		enemyAimDir = playerPos - enemyPos;
-		enemyAimDir = enemyAimDir / sqrt(pow(enemyAimDir.x, 2) + pow(enemyAimDir.y, 2));
+		enemyAimDir = enemyAimDir / static_cast<float>(sqrt(pow(enemyAimDir.x, 2) + pow(enemyAimDir.y, 2)));
 
 		//enemy 1 shoots
 		if (enemy->getType() == 0)
@@ -623,6 +701,40 @@ void Game::updateEnemyCollision()
 			numEnemiesDestroyed++;
 			enemyDestroyed = false;
 
+			//drop powerup
+			int dropChance = rand() % 100 + 1;
+
+			if (dropChance > 10)
+			{
+				int type_Generator = rand() % 6;
+
+				switch (type_Generator) {
+
+				case(0):
+					this->upgrades.push_back(new Upgrade(*this->textures["DBRayupgrades"], this->enemies[enemyVectPos]->getPosition(), 500.f, type_Generator));
+					std::cout << "Inserting a DBRAY powerup!" << std::endl;
+					break;
+
+				case(1):
+					this->upgrades.push_back(new Upgrade(*this->textures["SPRayUpgrade"], this->enemies[enemyVectPos]->getPosition(), 500.f, type_Generator));
+					std::cout << "Inserting a SPRAY powerup!" << std::endl;
+					break;
+
+				case(2):
+					this->upgrades.push_back(new Upgrade(*this->textures["HPUpgrade"], this->enemies[enemyVectPos]->getPosition(), 500.f, type_Generator));
+					std::cout << "Inserting a HP powerup!" << std::endl;
+					break;
+
+				case(3):
+					this->upgrades.push_back(new Upgrade(*this->textures["RTUpgrade"], this->enemies[enemyVectPos]->getPosition(), 500.f, type_Generator));
+					std::cout << "Inserting a FIRERT powerup!" << std::endl;
+					break;
+				case(4):
+					this->upgrades.push_back(new Upgrade(*this->textures["DMGUpgrade"], this->enemies[enemyVectPos]->getPosition(), 500.f, type_Generator));
+					std::cout << "Inserting a DMGUP powerup!" << std::endl;
+				}
+			}
+
 			//delete the enemy
 			delete this->enemies[enemyVectPos];
 			this->enemies.erase(this->enemies.begin() + enemyVectPos);
@@ -688,6 +800,45 @@ void Game::updatePlayerCollision()
 		}
 		enemyVectPos = 0;
 		bulletVectPos++;
+	}
+	if (!this->upgrades.empty()) {
+		for (auto i = 0; i < this->upgrades.size(); i++)
+		{
+			if (this->upgrades[i]->checkCollision(this->player->getGlobalHitbox()))
+			{
+				std::cout << "PowerUp!\n";
+				switch (this->upgrades[i]->returnType()) {
+				case(0):
+					std::cout << "Upgrade Double Ray Gun!" << std::endl;
+					this->player->aliveTimerReset();
+					this->player->updateGunLevel(0, 500.f);
+					break;
+
+				case(1):
+					std::cout << "Upgrade Spread Gun!" << std::endl;
+					this->player->aliveTimerReset();
+					this->player->updateGunLevel(1, 500.f);
+					break;
+
+				case(2):
+					this->player->addHP();
+					break;
+
+				case(3):
+					this->player->RTaliveTimerReset();
+					this->player->updateRTUpgrade(true, 500.f);
+					break;
+				
+				case(4):
+					this->player->addDmg();
+
+				}
+				this->upgrades.erase(this->upgrades.begin() + i);
+				std::cout << "Powerup entity deleted!" << std::endl;
+				break;
+
+			}
+		}
 	}
 }
 
@@ -763,6 +914,14 @@ void Game::render()
 	{
 		b->render(*this->window);
 	}
+
+	for (auto& e : this->upgrades)
+	{
+		e->Draw(*this->window);
+
+		e->update();
+	}
+
 
 	//render player
 	this->player->render(*this->window); //draw the player
@@ -1941,13 +2100,71 @@ void Game::burstClusterShot(sf::Vector2f burstPos)
 //runs the game
 void Game::run()
 {
+	Clock clock2;
+	float dt = 0.f;
+
 	while (running())
 	{
 		this->updatePollEvents();
+
+		dt = clock2.restart().asSeconds();
+
 		if (player->getHp() > 0.f)
-			update();
+			update(dt);
 		else
 			gameOver = true;
 		render();
 	}
+}
+
+void Game::upgradesUpdate(const float& dt)
+{
+	bool upgradeRemoved = false;
+	bool hasUpgrade = false;
+
+	for (size_t i = 0; i < this->upgrades.size() && !upgradeRemoved; i++)
+	{
+		this->upgrades[i]->Update(dt);
+
+
+		if (this->upgrades[i]->canDelete())
+		{
+			upgradeRemoved = true;
+		}
+
+		if (upgradeRemoved)
+			this->upgrades.erase(this->upgrades.begin() + i);
+	}
+}
+
+void Game::gunUpdate(const float& dt)
+{
+	this->player->gunUpgradeTimer(dt);
+}
+
+bool Game::gunStatus() {
+
+	if (this->player->deleteGun())
+	{
+		return false;
+	}
+	//std::cout << "Testing func" << std::endl;
+	return true;
+
+}
+
+void Game::fireRTUpdate(const float& dt)
+{
+	this->player->fireRTTimer(dt);
+}
+
+bool Game::fireRTStatus() {
+
+	if (this->player->deleteRT())
+	{
+		return false;
+	}
+	//std::cout << "Testing func" << std::endl;
+	return true;
+
 }

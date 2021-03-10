@@ -34,6 +34,9 @@ public:
 
 	//functions
 	void update();
+
+	//upgrades function
+	inline sf::Vector2f getPosition()const { return this->sprite.getPosition(); }
 };
 
 #endif
