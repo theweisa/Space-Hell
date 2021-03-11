@@ -30,6 +30,11 @@ void Entity::setSpriteScale(float scale)
 	this->sprite.scale(scale, scale);
 }
 
+void Entity::setSpriteColor(sf::Color newColor)
+{
+	sprite.setColor(newColor);
+}
+
 void Entity::setRotate(float angle)
 {
 	rotateAngle = angle;

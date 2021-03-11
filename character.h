@@ -15,12 +15,15 @@ public:
 	const float getDamage() const;
 	const float getHp() const;
 	const float getMaxHp() const;
+	const float getFireRate() const;
 	const std::string getCurrentAnimation() const;
 	const std::string getSpawnKey() const;
 	const std::string getIdleKey() const;
 	const bool endOfSpawnAnimation();
 
 	//mutator
+	void setHp(float newHp);
+	void setDamage(float newDamage);
 	void setFireRate(float newFireRate);
 	void setSpawnAnimation(std::string key, sf::Texture* textureSheet, int endFrameX, int endFrameY, int width, int height);
 	void setIdleAnimation(std::string key, sf::Texture* textureSheet, int endFrameX, int endFrameY, int width, int height);

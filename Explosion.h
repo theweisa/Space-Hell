@@ -17,7 +17,7 @@ public:
 
 		key = "explosion";
 		animations[key] = new Animation(sprite, *newTexture, 10.f, 0, 0, 5, 0, 32, 32);
-		deltaTime = 0;
+		deltaTime = 0.f;
 	}
 
 	void setTime(float & time)

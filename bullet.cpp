@@ -49,9 +49,9 @@ const int Bullet::getType() const
 	return type;
 }
 
-const sf::Vector2f Bullet::getBasePlayerPos() const
+const sf::Vector2f Bullet::getBasePos() const
 {
-	return basePlayerPos;
+	return basePos;
 }
 
 const int Bullet::getMaxBounce() const
@@ -76,9 +76,9 @@ void Bullet::setDir(sf::Vector2f newDir)
 	direction = newDir;
 }
 
-void Bullet::setBasePlayerPos(sf::Vector2f newPlayerPos)
+void Bullet::setBasePos(sf::Vector2f newPos)
 {
-	basePlayerPos = newPlayerPos;
+	basePos = newPos;
 }
 
 //update the bullets movement

@@ -25,6 +25,7 @@ public:
 	void setRotate(float angle);
 	void setHitbox(const sf::FloatRect& newHitbox);
 	void setSpriteScale(float scale);
+	void setSpriteColor(sf::Color newColor);
 
 	//accessors
 	const sf::FloatRect getGlobalHitbox() const;

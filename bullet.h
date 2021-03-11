@@ -7,7 +7,7 @@ class Bullet : public Entity
 {
 private:
 	sf::Vector2f direction;
-	sf::Vector2f basePlayerPos;
+	sf::Vector2f basePos;
 	int type;
 	int maxBounce;
 public:
@@ -17,12 +17,12 @@ public:
 
 	//accessor
 	const int getType() const;
-	const sf::Vector2f getBasePlayerPos() const;
+	const sf::Vector2f getBasePos() const;
 	const int getMaxBounce() const;
 	const sf::Vector2f getDir() const;
 
 	//mutator
-	void setBasePlayerPos(sf::Vector2f newPlayerPos);
+	void setBasePos(sf::Vector2f newPos);
 	void setMaxBounce(int newMaxBounce);
 	void setDir(sf::Vector2f newDir);
 

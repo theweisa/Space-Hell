@@ -8,7 +8,7 @@ Enemy::Enemy()
 Enemy::Enemy(sf::Texture& newTexture, int newType, float newHp, float damage, float newFireRate, float newMovementSpeed, sf::FloatRect& newHitbox, sf::Vector2f initialPosition, unsigned posInWave, float scale)
 {
 	this->sprite.setTexture(newTexture);
-	this->sprite.setOrigin(16, 16);
+	this->sprite.setOrigin(sf::Vector2f(sprite.getTexture()->getSize().x * 0.5f, sprite.getTexture()->getSize().x * 0.5f));
 	this->type = newType;
 	this->hp = newHp;
 	this->hpMax = newHp;
@@ -17,10 +17,12 @@ Enemy::Enemy(sf::Texture& newTexture, int newType, float newHp, float damage, fl
 	this->movementSpeed = newMovementSpeed;
 	this->destroyed = false;
 	this->setHitbox(newHitbox);
-	this->sprite.scale(1.5f * scale, 1.5f * scale);
+	this->sprite.scale(1.3f * scale, 1.3f * scale);
 	this->sprite.setPosition(initialPosition);
 	this->posInWave = posInWave;
 	bulletCounter = 0;
+	damageTimer = 0.f;
+	isDamaged = false;
 }
 
 Enemy::~Enemy()
@@ -59,6 +61,11 @@ const float Enemy::getSpeed() const
 	return movementSpeed;
 }
 
+const bool Enemy::getIsDamaged() const
+{
+	return isDamaged;
+}
+
 //functions
 
 //mutator
@@ -75,6 +82,31 @@ void Enemy::setEnemyToPlayerDir(sf::Vector2f enemyToPlayerDir)
 void Enemy::setBulletCounter(int newBulletCounter)
 {
 	bulletCounter = newBulletCounter;
+}
+
+void Enemy::setIsDamaged(bool damaged)
+{
+	isDamaged = damaged;
+}
+
+void Enemy::restartDamageTimer()
+{
+	damageTimer = 0.f;
+}
+
+void Enemy::showDamaged(float & deltaTime)
+{
+	isDamaged = true;
+	damageTimer += deltaTime;
+	if (damageTimer < 0.1f)
+	{
+		sprite.setColor(sf::Color(239, 138, 138, 255));
+	}
+	else
+	{
+		isDamaged = false;
+		sprite.setColor(sf::Color::White);
+	}
 }
 
 void Enemy::update()
