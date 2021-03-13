@@ -1,5 +1,7 @@
 // Codes for sfx
 
+// ******************** update 1 ******************** //
+
 // For game.h
 // In resources section
 sf::Music normalBGM;
@@ -23,7 +25,6 @@ for (auto& s : this->sounds)
     delete s.second;
 }
 
-// Line 192-249
 //initialize the music and sound effects
 void Game::initAudio()
 {
@@ -51,7 +52,6 @@ void Game::initAudio()
     this->sounds["emergency"]->setLoop(true);
 }
 
-// Line 251-259
 void Game::addSound(const std::string key, const std::string fileName)
 {
     this->soundBuffers[key] = new sf::SoundBuffer();
@@ -64,11 +64,11 @@ void Game::addSound(const std::string key, const std::string fileName)
         std::cout << "ERROR: failed to load " << fileName << std::endl;
 }
 
-// In updatePlayer: Line 435-436
+// In updatePlayer
 //play sound when player shoots
 this->sounds["playerBullet"]->play();
 
-// In updateEnemyCollision: Line 775-780
+// In updateEnemyCollision
 //play sound when enemy takes damage
 if (enemy->getHp() > 0.f)
     this->sounds["enemyHit"]->play();
@@ -76,7 +76,7 @@ if (enemy->getHp() > 0.f)
 else if (enemy->getHp() <= 0.f)
     this->sounds["explosion"]->play();
 
-// In updatePlayerCollision: Line 850-866 AND 884-900
+// In updatePlayerCollision
 //play sound when player takes damage
 if (this->player->getHp() > 0.f)
 {
@@ -95,38 +95,38 @@ else if (this->player->getHp() <= 0.f)
     this->sounds["gameover"]->play();
 }
 
-// In updateUpgradeCollision: Line 985-986
+// In updateUpgradeCollision
 //play sound when player picks up an item
 this->sounds["itemPickUp"]->play();
 
-// In spawnRandomEnemy: Line 2113-2114
+// In spawnRandomEnemy
 //play spund when enemy is spawned
 this->sounds["enemySpawn"]->play();
 
-// In enemyOneFirePattern: Line 2125-2126
-// In bounceEnemyOneFirePattern: Line 2138-2139
-// In enemyTwoFirePattern: Line 2152-2153
-// In circleEnemyTwoFirePattern: Line 2165-2166
-// In enemyThreeFirePattern: Line 2174-2175
-// In burstEnemyThreeFirePattern: Line 2187-2188
-// In enemyFourFirePattern: Line 2208-2209
-// In bossPatternOne: Line 2291-2292
-// In bossPatternTwo: Line 2310-2311
-// In bossPatternThree: Line 2330-2331
-// In bossPatternFour: Line 2350-2351
-// In burstClusterShot: Line 2497-2498
+// In enemyOneFirePattern
+// In bounceEnemyOneFirePattern
+// In enemyTwoFirePattern
+// In circleEnemyTwoFirePattern
+// In enemyThreeFirePattern
+// In burstEnemyThreeFirePattern
+// In enemyFourFirePattern
+// In bossPatternOne
+// In bossPatternTwo
+// In bossPatternThree
+// In bossPatternFour
+// In burstClusterShot
 //play sound when enemy shoots
 this->sounds["enemyBullet"]->play();
 
-// In enemyThreeFirePattern: Line 2174-2175
+// In enemyThreeFirePattern
 //play sound when enemy shoots
 this->sounds["longEnemyBullet"]->play();
 
-//In run: Line: 2553-2554
+//In run
 //start playing background music
 this->normalBGM.play();
 
-// In run: Line 2561-2578
+// In run
 if (currentWave == 11)
 {
     //stop playing the normal background music if it's playing
@@ -146,13 +146,39 @@ else
         this->normalBGM.play();
 }
 
-// In run: Line: 2586-2590
+// In run: Line
 //stop playing background music
 if (normalBGM.getStatus() == sf::Music::Playing)
     this->normalBGM.stop();
 if (bossBGM.getStatus() == sf::Music::Playing)
     this->bossBGM.stop();
 
-// In dropPowerUp: Line 2701-2702
+// In dropPowerUp
 //play sound when enemy drops an item
 this->sounds["itemDrop"]->play();
+
+// ******************** update 2 ******************** //
+
+// In initAudio: After addSound("longEnemyBullet", "Audio/longEnemyBullet.wav");
+addSound("bigEnemyBullet", "Audio/bigEnemyBullet.wav");
+
+// REPLACE this->sounds["enemyBullet"]->play();
+// In burstEnemyThreeFirePattern and bossPatternTwo
+//play sound when enemy shoots
+this->sounds["bigEnemyBullet"]->play();
+
+// In initAudio: After this->sounds["emergency"]->setLoop(true);
+this->normalBGM.setVolume();
+this->bossBGM.setVolume();
+this->sounds["playerBullet"]->setVolume();
+this->sounds["enemyBullet"]->setVolume();
+this->sounds["longEnemyBullet"]->setVolume();
+this->sounds["bigEnemyBullet"]->setVolume();
+this->sounds["enemySpawn"]->setVolume();
+this->sounds["playerHit"]->setVolume();
+this->sounds["enemyHit"]->setVolume();
+this->sounds["explosion"]->setVolume();
+this->sounds["itemDrop"]->setVolume();
+this->sounds["itemPickUp"]->setVolume();
+this->sounds["emergency"]->setVolume();
+this->sounds["gameover"]->setVolume();
