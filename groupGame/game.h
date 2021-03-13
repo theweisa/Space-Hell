@@ -1,6 +1,5 @@
 #ifndef GAME_H
 #define GAME_H
-#include "player.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -18,6 +17,7 @@
 #include <cstdlib>
 #include <iterator>
 
+#include "Upgrade.h"
 #include "Explosion.h"
 #include "Background.h"
 #include "player.h"
@@ -49,14 +49,9 @@ private:
 	std::vector<Bullet*> enemyBullets;
 	std::vector<Enemy*> enemies;
 	std::vector<Explosion*> explosions;
+	std::vector<Upgrade*> upgrades;
+	std::unordered_map<std::string, sf::Text*> texts;
 	sf::Font font;
-
-	//*******text*******
-	sf::Text pointText;
-	sf::Text comboText;
-	sf::Text playerHpText;
-	sf::Text gameOverText;
-	sf::Text pauseText;
 
 	//*******Mouse position*******
 	sf::Vector2i mousePosWindow;
@@ -74,23 +69,24 @@ private:
 	//*******game logic*******
 
 	//enemy variables
+	bool moveUp;
+	bool moveRight;
 	bool enemySpawned;
-	bool enemyCollision;
 	bool enemyDestroyed;
 	int numEnemies;
 	int numEnemiesDestroyed;
-	bool fireCluster;
+	bool enemyFireCluster;
 	int bossPattern;
 	bool bossEnraged;
 	bool bossDestroyed;
 
 	//player variables
-	bool moveUp;
-	bool moveRight;
-	bool playerCollision;
 	float playerInvulTimer;
 	float playerInvulTimerMax;
-	sf::FloatRect playerBulletHitbox;
+	bool playerFireCluster;
+	int playerFirePattern;
+	float totalPlayerDamageUp;
+	float totalPlayerFireRateUp;
 
 	//game variables
 	int currentWave;
@@ -106,6 +102,9 @@ private:
 	sf::Vector2f enemyAimDir;
 	sf::Vector2f baseEnemyAimDir;
 
+	//reset game
+	bool resetVal;
+
 	//general private variables
 	const float pi = 3.14159f;
 
@@ -116,6 +115,7 @@ private:
 	void initTextures();
 	void addTexture(const std::string key, const std::string fileName);
 	void initGUI();
+	void addText(const std::string key, unsigned charSize, sf::Color color, const std::string initialText, sf::Vector2f initialPos);
 	//void initText(sf::Text& text, sf::Font font, sf::Vector2f pos, int size, sf::Color color, std::string initialString);
 	void initWorld();
 	void initPlayer();
@@ -139,10 +139,12 @@ public:
 	void updateWorldCollision(Entity* entity, float offset);
 	void updateEnemyCollision();
 	void updatePlayerCollision();
+	void updateUpgradeCollision();
 	void updateGUI();
 	void updateEnemyAnimation(Enemy* enemy);
 	void updatePlayerAnimation();
-	void updateExplosion();
+	void updateExplosions();
+	void updateUpgrades();
 	void updateWorld();
 
 	//render
@@ -185,11 +187,12 @@ public:
 	void bossPatternThree(Enemy* enemy);
 	void bossPatternFour(Enemy* enemy);
 
-	void fireSpread(sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed, float spreadDegree);
-	void fireWave(sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletOffset, sf::Vector2f baseAimDir, Enemy* enemy);
-	void fireInCircle(sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType, sf::Vector2f centerPos, float offSet);
-	void fireClusterShot(sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType);
-	void burstClusterShot(sf::Vector2f burstPos);
+	void fireSpread(const std::string character, sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed, float spreadDegree);
+	void fireWave(sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed, float bulletOffset, sf::Vector2f baseAimDir, Enemy* enemy);
+	void fireInCircle(const std::string character, sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed, sf::Vector2f centerPos, float offSet);
+	void fireClusterShot(const std::string character, sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed);
+	void burstClusterShot(const std::string character, sf::Vector2f burstPos, sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed);
+	void fireDoubleBullets(const std::string character, sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed);
 
 	void waveOne();
 	void waveTwo();
@@ -204,7 +207,23 @@ public:
 	void bossWave();
 
 	//void spawnEnemies();
-	void run();
+	bool run();
+	void run2();
+
+
+	//upgrades functions
+	void dropPowerUp(Enemy* enemy);
+
+	/*void upgradesUpdate(const float& dt);
+	void gunUpdate(const float& dt);
+	bool gunStatus();
+
+	void fireRTUpdate(const float& dt);
+	bool fireRTStatus();*/
+
+	void reset();
+	void reset2();
+
 };
 
 #endif

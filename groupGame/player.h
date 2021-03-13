@@ -11,6 +11,20 @@ private:
 	void initSprite(sf::Vector2f initialPos, float scale);
 	void initHitbox();
 
+
+	int gunLevel = 0;
+	bool enabledRTUpgrade = false;
+
+	//Timer for gunlevel
+	float dtMultiplier;
+	float aliveTimer = 0;
+	float aliveTimerMax;
+
+	//timer for firerate
+	float RTaliveTimer = 0;
+	float RTaliveTimerMax;
+
+
 public:
 	//constructor/destructor
 	Player(sf::Vector2f initialPos, float scale);
@@ -23,7 +37,7 @@ public:
 	//mutator
 	void setDamagedAnimation(std::string key, sf::Texture* textureSheet, int endFrameX, int endFrameY, int width, int height);
 
-	//accesspr
+	//accessor
 	const std::string getDamagedKey() const;
 };
 

@@ -56,6 +56,11 @@ const float Character::getMaxHp() const
 	return hpMax;
 }
 
+const float Character::getFireRate() const
+{
+	return maxFireRate;
+}
+
 const std::string Character::getCurrentAnimation() const
 {
 	return currentAnimation;
@@ -74,6 +79,16 @@ const std::string Character::getIdleKey() const
 const bool Character::endOfSpawnAnimation()
 {
 	return animations[spawnKey]->getEndOfAnimation();
+}
+
+void Character::setHp(float newHp)
+{
+	this->hp = newHp;
+}
+
+void Character::setDamage(float newDamage)
+{
+	this->damage = newDamage;
 }
 
 //mutator

@@ -10,7 +10,6 @@ Game::Game()
 	//initialize all variables
 	this->initVariables();
 	this->initWindow();
-	this->initView();
 	this->initTextures();
 	this->initGUI();
 	this->initWorld();
@@ -24,8 +23,6 @@ Game::~Game()
 	//delete the window
 	delete this->window;
 
-	delete this->view;
-
 	//delete the player
 	delete this->player;
 
@@ -33,6 +30,11 @@ Game::~Game()
 	for (auto& texture : this->textures)
 	{
 		delete texture.second;
+	}
+
+	for (auto& text : this->texts)
+	{
+		delete text.second;
 	}
 
 	//delete player bullets
@@ -54,10 +56,16 @@ Game::~Game()
 	}
 
 	//delete all the explosion animations
-	for (auto* d : this->explosions)
+	for (auto* explosion : this->explosions)
 	{
-		delete d;
+		delete explosion;
 	}
+
+	for (auto* upgrade : this->upgrades)
+	{
+		delete upgrade;
+	}
+
 	delete spaceBackground;
 }
 
@@ -73,6 +81,7 @@ void Game::initVariables()
 	this->gameOver = false;
 
 	this->pause = false;
+	this->resetVal = false;
 
 	this->pauseBufferMax = 20.f;
 	this->pauseBuffer = pauseBufferMax;
@@ -93,24 +102,12 @@ void Game::initVariables()
 //initialize window
 void Game::initWindow()
 {
-	std::vector<sf::VideoMode> modes = sf::VideoMode::getFullscreenModes();
-	for (const auto& videoMode : sf::VideoMode::getFullscreenModes())
-	{
-		std::cout << "resolution: " << videoMode.width << "x" << videoMode.height;
-		std::cout << ", bits per pixel: " << videoMode.bitsPerPixel << std::endl;
-	}
-
 	// Create a window with the same pixel depth as the desktop
 	sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
 	//games main resolution is in 640 x 480
 	this->videoMode.height = 768;
 	this->videoMode.width = 1024;
 	this->window = new sf::RenderWindow(this->videoMode, "Game", sf::Style::Titlebar | sf::Style::Close | sf::Style::Resize); //dynamically allocate mem for window
-
-	if (!videoMode.isValid())
-	{
-		std::cout << "NEW MODE: " << videoMode.width << ", " << videoMode.height << std::endl;
-	}
 
 
 	//height of the window
@@ -127,14 +124,6 @@ void Game::initWindow()
 
 	//set the max frame rate
 	this->window->setFramerateLimit(60);
-}
-
-void Game::initView()
-{
-	view = new sf::View(sf::Vector2f(windowWidth * 0.5f, windowHeight * 0.5f), sf::Vector2f(windowWidth, windowHeight));
-	//view->zoom(0.5);
-	window->setView(*view);
-	//window->setView(view);
 }
 
 //initialize the textures and animations
@@ -162,7 +151,15 @@ void Game::initTextures()
 	addTexture("bossEnemySpawn", "Animations/bossEnemySpawnSheet.png");
 	addTexture("bossEnemyIdle", "Animations/bossEnemyIdleSheet.png");
 
+	addTexture("damageUpIdle", "Animations/damageUpIdleSheet.png");
+	addTexture("hpUpIdle", "Animations/hpUpIdleSheet.png");
+	addTexture("fireRateUpIdle", "Animations/fireRateUpIdleSheet.png");
+	addTexture("doubleBulletUpIdle", "Animations/doubleBulletUpIdleSheet.png");
+	addTexture("spreadBulletUpIdle", "Animations/spreadBulletUpIdleSheet.png");
+	addTexture("burstBulletUpIdle", "Animations/burstBulletUpIdleSheet.png");
+
 	addTexture("playerBullet", "Textures/player_bullet.png");
+	addTexture("bigPlayerBullet", "Textures/bigPlayerBullet.png");
 	addTexture("longEnemyBullet", "Textures/enemy_bullet_long.png");
 	addTexture("enemyBullet", "Textures/enemy_bullet.png");
 	addTexture("enemyOne", "Textures/enemy1.png");
@@ -188,45 +185,32 @@ void Game::addTexture(const std::string key, const std::string fileName)
 
 //initialize the GUI elements like text
 void Game::initGUI()
-{	
+{
 	if (!font.loadFromFile("Fonts/Minecraft.ttf"))
 		std::cout << "ERROR: failed to load font.\n";
-	
+
 	//init point text
 	//initText(pointText, font, sf::Vector2f(20, 400), 20, sf::Color::White, "POINT_TEXT");
-	
-	pointText.setFont(font);
-	pointText.setCharacterSize(static_cast<unsigned>(20.f * scale));
-	pointText.setFillColor(sf::Color::White);
-	pointText.setString("POINT_TEXT");
-	pointText.setPosition(20, windowHeight - 50.f);
+	addText("pointText", static_cast<unsigned>(20.f * scale), sf::Color::White, "POINT_TEXT", sf::Vector2f(20.f, windowHeight - 50.f));
+	addText("comboText", static_cast<unsigned>(20.f * scale), sf::Color::White, "COMBO_TEXT", sf::Vector2f(0.f, 0.f));
+	texts["comboText"]->setPosition(sf::Vector2f(windowWidth - texts["comboText"]->getGlobalBounds().width, windowHeight - 50.f));
 
-	//init combo text
-	comboText.setFont(font);
-	comboText.setCharacterSize(static_cast<unsigned>(20.f * scale));
-	comboText.setFillColor(sf::Color::White);
-	comboText.setString("COMBO_TEXT");
-	comboText.setPosition(windowWidth - comboText.getGlobalBounds().width, windowHeight - 50.f);
+	addText("playerHpText", static_cast<unsigned>(20.f * scale), sf::Color::White, "HP_TEXT", sf::Vector2f(20.f, windowHeight - 100.f));
+	addText("gameOverText", static_cast<unsigned>(40.f * scale), sf::Color::White, "GAME OVER", sf::Vector2f(0.f, 0.f));
+	texts["gameOverText"]->setPosition(sf::Vector2f((windowWidth - texts["gameOverText"]->getGlobalBounds().width) * 0.5f, (windowHeight - texts["gameOverText"]->getGlobalBounds().height) * 0.5f));
 
-	//init player hp text
-	playerHpText.setFont(font);
-	playerHpText.setCharacterSize(static_cast<unsigned>(20.f * scale));
-	playerHpText.setFillColor(sf::Color::White);
-	playerHpText.setString("HP_TEXT");
-	playerHpText.setPosition(20, windowHeight - 100.f);
+	addText("pauseText", static_cast<unsigned>(40.f * scale), sf::Color::White, "PAUSE", sf::Vector2f(0.f, 0.f));
+	texts["pauseText"]->setPosition(sf::Vector2f((windowWidth - texts["pauseText"]->getGlobalBounds().width) * 0.5f, (windowHeight - texts["pauseText"]->getGlobalBounds().height) * 0.5f));
+}
 
-	//init game over text
-	gameOverText.setFont(font);
-	gameOverText.setCharacterSize(static_cast<unsigned>(40.f * scale));
-	gameOverText.setFillColor(sf::Color::White);
-	gameOverText.setString("GAME OVER");
-	gameOverText.setPosition((windowWidth - gameOverText.getGlobalBounds().width) * 0.5f, (windowHeight - gameOverText.getGlobalBounds().height) * 0.5f);
-
-	pauseText.setFont(font);
-	pauseText.setCharacterSize(static_cast<unsigned>(40.f * scale));
-	pauseText.setFillColor(sf::Color::White);
-	pauseText.setString("PAUSE");
-	pauseText.setPosition((windowWidth - pauseText.getGlobalBounds().width) * 0.5f, (windowHeight - pauseText.getGlobalBounds().height) * 0.5f);
+void Game::addText(const std::string key, unsigned charSize, sf::Color color, const std::string initialText, sf::Vector2f initialPos)
+{
+	texts[key] = new sf::Text;
+	texts[key]->setFont(font);
+	texts[key]->setCharacterSize(charSize);
+	texts[key]->setFillColor(color);
+	texts[key]->setString(initialText);
+	texts[key]->setPosition(initialPos);
 }
 
 //initialize world background
@@ -241,11 +225,13 @@ void Game::initPlayer()
 	//create the player
 	sf::Vector2f initialPos(windowWidth * 0.5f, windowHeight - 100.f);
 	this->player = new Player(initialPos, scale);
-	//player->setSpriteScale(scale);
 
-	this->playerCollision = false;
-	playerBulletHitbox = sf::FloatRect(1, 1, 6, 6);
-	this->playerInvulTimerMax = 70.f;
+	playerFirePattern = 0;
+	totalPlayerDamageUp = 0.f;
+	totalPlayerFireRateUp = 0.f;
+
+	playerFireCluster = false;
+	this->playerInvulTimerMax = 2.f;
 	this->playerInvulTimer = this->playerInvulTimerMax;
 	this->player->setRotate(0.f);
 
@@ -255,14 +241,13 @@ void Game::initPlayer()
 //initialize enemy variables
 void Game::initEnemy()
 {
-	this->enemyCollision = false;
 	enemySpawned = false;
 	enemyDestroyed = false;
 	moveUp = false;
 	moveRight = false;
 	numEnemiesDestroyed = 0;
 	numEnemies = 0;
-	fireCluster = false;
+	enemyFireCluster = false;
 	bossEnraged = false;
 	bossDestroyed = false;
 }
@@ -295,7 +280,11 @@ void Game::update()
 
 	this->updateEnemyCollision();
 
-	this->updateExplosion();
+	this->updateUpgradeCollision();
+
+	this->updateExplosions();
+
+	this->updateUpgrades();
 
 	this->updateWorld();
 
@@ -324,21 +313,6 @@ void Game::updateDeltaTime()
 	deltaTime = deltaClock.restart().asSeconds();
 }
 
-void Game::updateView()
-{
-	/*sf::Vector2f prevWindowSize(windowWidth, windowHeight);
-	windowWidth = window->getSize().x;
-	windowHeight = window->getSize().y;
-
-	float scale = prevWindowSize.x / windowWidth;
-	std::cout << "scale: " << scale << std::endl;
-
-	view->setSize(sf::Vector2f(window->getSize()));
-	view->setCenter(windowWidth * 0.5f, windowHeight * 0.5f);
-	view->zoom(scale);
-	window->setView(*view);*/
-}
-
 //update mouse position
 void Game::updateMousePos()
 {
@@ -350,7 +324,7 @@ void Game::updateMousePos()
 	playerPos = sf::Vector2f(this->player->getPos().x, this->player->getPos().y);
 	//formula for direction: d.x = (m.x - p.x) / sqrt(p.x^2 - m.x^2) + (p.y^2 - m.y^2))
 	playerAimDir = mousePosView - playerPos;
-	playerAimDir = playerAimDir / sqrt(pow(playerAimDir.x, 2) + pow(playerAimDir.y, 2));
+	playerAimDir = playerAimDir / static_cast<float>(sqrt(pow(playerAimDir.x, 2) + pow(playerAimDir.y, 2)));
 
 	//get the angle of the mouse relative to the player
 	mouseAngle = -atan2(player->getPos().x - mousePosView.x, player->getPos().y - mousePosView.y) * 180.f / pi;
@@ -360,7 +334,7 @@ void Game::updateMousePos()
 void Game::updatePlayer()
 {
 	//increment invul timer
-	playerInvulTimer += 1.f;
+	playerInvulTimer += deltaTime;
 
 	//rotate the player to point towards the mouse
 	player->setRotate(mouseAngle);
@@ -378,7 +352,43 @@ void Game::updatePlayer()
 	//if player presses space and can fire, shoot
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && this->player->canFire())
 	{
-		this->playerBullets.push_back(new Bullet(*this->textures["playerBullet"], 0, playerBulletHitbox, playerPos, mouseAngle, playerAimDir, 10.f, scale));
+		if (playerFirePattern == 0)
+		{
+			sf::FloatRect bulletHitbox(1, 1, 6, 6);
+			sf::Texture* newTexture = this->textures["playerBullet"];
+			int bulletType = 0;
+			float bulletSpeed = 8.f * scale;
+			std::cout << "PlayerAimDir.y " << playerAimDir.y << std::endl;
+			std::cout << "Player pos" << playerPos.x << "," << playerPos.y << std::endl;
+			this->playerBullets.push_back(new Bullet(*newTexture, bulletType, bulletHitbox, playerPos, mouseAngle, playerAimDir, bulletSpeed, scale));
+		}
+		if (playerFirePattern == 1)
+		{
+			sf::FloatRect bulletHitbox(1, 1, 6, 6);
+			sf::Texture* newTexture = this->textures["playerBullet"];
+			int bulletType = 0;
+			float bulletSpeed = 8.f * scale;
+
+			//shoot two lines of bullets
+			fireDoubleBullets("player", newTexture, bulletHitbox, bulletType, bulletSpeed);
+		}
+		if (playerFirePattern == 2)
+		{
+			sf::FloatRect bulletHitbox(1, 1, 6, 6);
+			sf::Texture* newTexture = this->textures["playerBullet"];
+			int bulletType = 0;
+			float bulletSpeed = 8.f * scale;
+
+			fireSpread("player", newTexture, bulletHitbox, bulletType, bulletSpeed, (pi / 18.f));
+		}
+		if (playerFirePattern == 3)
+		{
+			sf::Texture* bulletTexture = this->textures["bigPlayerBullet"];
+			sf::FloatRect bulletHitbox(1, 1, 14, 14);
+			int bulletType = 12;
+			float bulletSpeed = 2.5f * scale;
+			fireClusterShot("player", bulletTexture, bulletHitbox, bulletType, bulletSpeed);
+		}
 	}
 
 	//should also update the player animation
@@ -455,7 +465,7 @@ void Game::updateEnemies()
 
 		//gets the cos and sin values of the enemy compared to the player;
 		enemyAimDir = playerPos - enemyPos;
-		enemyAimDir = enemyAimDir / sqrt(pow(enemyAimDir.x, 2) + pow(enemyAimDir.y, 2));
+		enemyAimDir = enemyAimDir / static_cast<float>(sqrt(pow(enemyAimDir.x, 2) + pow(enemyAimDir.y, 2)));
 
 		//enemy 1 shoots
 		if (enemy->getType() == 0)
@@ -544,51 +554,70 @@ void Game::updateEnemies()
 	}
 }
 
-//update bullets
+//update the bullets for the player and the enemy
 void Game::updateBullets()
 {
-	unsigned vectPos = 0;
-
-	//upade player bullets
-	for (auto *b : this->playerBullets)
+	sf::Vector2f playerBulletPos;
+	auto itr = playerBullets.begin();
+	while (itr != playerBullets.end())
 	{
-		//move the bullets
-		b->update();
+		(*itr)->update();
+
+		if ((*itr)->getType() == 12)
+		{
+			float offsetTop = (*itr)->getBasePos().y + 10.f;
+			float offsetBottom = (*itr)->getBasePos().y - 10.f;
+			float offsetRight = (*itr)->getBasePos().x - 10.f;
+			float offsetLeft = (*itr)->getBasePos().x + 10.f;
+			if (((*itr)->getPos().y < offsetTop && (*itr)->getPos().y > offsetBottom) && ((*itr)->getPos().x < offsetLeft && (*itr)->getPos().x > offsetRight))
+			{
+				playerBulletPos = (*itr)->getPos();
+				itr = playerBullets.erase(itr);
+				playerFireCluster = true;
+			}
+			else
+			{
+				itr++;
+			}
+		}
 
 		//remove the bullets when they go off screen
-		if ((b->getPos().y < 0.f) || (b->getPos().y >= windowHeight) || (b->getPos().x < 0.f) || (b->getPos().x >= windowWidth))
-		{
-			delete this->playerBullets[vectPos];
-			this->playerBullets.erase(this->playerBullets.begin() + vectPos);
-			--vectPos;
-		}
-		++vectPos;
+		else if (((*itr)->getPos().y < 0.f) || ((*itr)->getPos().y >= windowHeight) || ((*itr)->getPos().x < 0.f) || ((*itr)->getPos().x >= windowWidth))
+			itr = playerBullets.erase(itr);
+		else
+			itr++;
 	}
-	vectPos = 0;
+	if (playerFireCluster)
+	{
+		playerFireCluster = false;
+		sf::FloatRect bulletHitbox(1, 1, 6, 6);
+		burstClusterShot("player", playerBulletPos, this->textures["playerBullet"], bulletHitbox, 10, 10.f * scale);
+	}
 
+	sf::Vector2f enemyBulletPos;
 	//update enemy bullets; move and delete them
-	std::vector<Bullet*>::iterator itr = enemyBullets.begin();
-	sf::Vector2f bulletPos;
+	itr = enemyBullets.begin();
 	while (itr != enemyBullets.end())
 	{
 		(*itr)->update();
 
 		if ((*itr)->getType() == 12)
 		{
-			float offsetTop = (*itr)->getBasePlayerPos().y + 10.f;
-			float offsetBottom = (*itr)->getBasePlayerPos().y - 10.f;
-			float offsetRight = (*itr)->getBasePlayerPos().x - 10.f;
-			float offsetLeft = (*itr)->getBasePlayerPos().x + 10.f;
+			float offsetTop = (*itr)->getBasePos().y + 10.f;
+			float offsetBottom = (*itr)->getBasePos().y - 10.f;
+			float offsetRight = (*itr)->getBasePos().x - 10.f;
+			float offsetLeft = (*itr)->getBasePos().x + 10.f;
 			if (((*itr)->getPos().y < offsetTop && (*itr)->getPos().y > offsetBottom) && ((*itr)->getPos().x < offsetLeft && (*itr)->getPos().x > offsetRight))
 			{
-				bulletPos = (*itr)->getPos();
+				enemyBulletPos = (*itr)->getPos();
 				itr = enemyBullets.erase(itr);
-				fireCluster = true;
+				enemyFireCluster = true;
 			}
 			else
 				itr++;
 		}
 
+		//if they go off screen
 		else if (((*itr)->getPos().y < 0.f) || ((*itr)->getPos().y >= windowHeight) || ((*itr)->getPos().x < 0.f) || ((*itr)->getPos().x >= windowWidth))
 		{
 			if ((*itr)->getMaxBounce() > 0)
@@ -623,10 +652,11 @@ void Game::updateBullets()
 		else
 			itr++;
 	}
-	if (fireCluster)
+	if (enemyFireCluster)
 	{
-		fireCluster = false;
-		burstClusterShot(bulletPos);
+		enemyFireCluster = false;
+		sf::FloatRect bulletHitbox(1, 1, 6, 6);
+		burstClusterShot("enemy", enemyBulletPos, this->textures["enemyBullet"], bulletHitbox, 10, 3.f * scale);
 	}
 }
 
@@ -667,14 +697,17 @@ void Game::updateEnemyCollision()
 		for (auto *bullet : this->playerBullets)
 		{
 			//bool that is if enemy hitbox intersects with player bullets
-			enemyCollision = this->playerBullets[bulletVectPos]->getGlobalHitbox().intersects(this->enemies[enemyVectPos]->getGlobalHitbox());
+			bool enemyCollision = this->playerBullets[bulletVectPos]->getGlobalHitbox().intersects(this->enemies[enemyVectPos]->getGlobalHitbox());
 
 			//if collision, enemy takes damage
 			if (enemyCollision)
 			{
 				//enemy takes damage
 				enemy->takeDamage(player->getDamage());
+				enemy->restartDamageTimer();
+				enemy->setIsDamaged(true);
 
+				std::cout << "enemy HP: " << enemy->getHp() << std::endl;
 				//gain points for hitting the enemy
 				points += 10 * combo;
 
@@ -686,16 +719,22 @@ void Game::updateEnemyCollision()
 						bossDestroyed = true;
 				}
 
-				//delete the bullet after it hits the enemy
-				delete this->playerBullets[bulletVectPos];
-				this->playerBullets.erase(this->playerBullets.begin() + bulletVectPos);
-				--bulletVectPos;
+				if (bullet->getType() != 12)
+				{
+					//delete the bullet after it hits the enemy
+					delete this->playerBullets[bulletVectPos];
+					this->playerBullets.erase(this->playerBullets.begin() + bulletVectPos);
+					--bulletVectPos;
+				}
 			}
 			bulletVectPos++;
 		}
 		//enemy is deleted if it is destroyed, or if the boss has been destroyed all the enemies are destroyed
 		if (enemyDestroyed || bossDestroyed)
 		{
+			//drop a power up
+			dropPowerUp(enemy);
+
 			explosions.push_back(new Explosion(this->textures["destroyedSheet"], enemy->getPos(), scale));
 
 			if (bossDestroyed)
@@ -729,14 +768,14 @@ void Game::updatePlayerCollision()
 	bool colliding = false;
 
 	//go through enemy bullets
-	for (auto *b : this->enemyBullets)
+	for (auto *enemyBullet : this->enemyBullets)
 	{
 		//if the invul timer is above the set time (not invincible), check for player collision
 		//if the invul timer is above the set time (not invincible), check for player collision
 		if (playerInvulTimer >= playerInvulTimerMax)
 		{
 			//check if the player collided with an enemy bullet
-			playerCollision = b->getGlobalHitbox().intersects(this->player->getGlobalHitbox());
+			bool playerCollision = enemyBullet->getGlobalHitbox().intersects(this->player->getGlobalHitbox());
 
 			//player takes damage, becomes invincible, and combo is reset if hit
 			if (playerCollision)
@@ -751,7 +790,7 @@ void Game::updatePlayerCollision()
 				combo = 1;
 
 				//delete the enemy bullet that hit the player
-				delete b;
+				delete enemyBullet;
 				this->enemyBullets.erase(this->enemyBullets.begin() + bulletVectPos);
 
 				--bulletVectPos;
@@ -780,20 +819,105 @@ void Game::updatePlayerCollision()
 	}
 }
 
+void Game::updateUpgradeCollision()
+{
+	auto itr = upgrades.begin();
+	bool upgradeDeleted = false;
+	while (itr != upgrades.end())
+	{
+		bool upgradeCollision = (*itr)->getGlobalHitbox().intersects(this->player->getGlobalHitbox());
+		if (upgradeCollision)
+		{
+			if ((*itr)->getType() == 1)
+			{
+				totalPlayerDamageUp += 0.2f;
+
+				//additive damage by 0.2
+				player->setDamage(player->getDamage() + 0.2f);
+				upgradeDeleted = true;
+				std::cout << "player damage: " << player->getDamage() << std::endl;
+			}
+			else if ((*itr)->getType() == 2)
+			{
+				if (player->getHp() < player->getMaxHp())
+				{
+					player->setHp(player->getHp() + 1.f);
+					upgradeDeleted = true;
+				}
+			}
+			else if ((*itr)->getType() == 3)
+			{
+				if (player->getFireRate() > 3.f)
+				{
+					totalPlayerFireRateUp += 0.2f;
+					player->setFireRate(player->getFireRate() - 0.2f);
+					upgradeDeleted = true;
+					std::cout << "fire rate increase: " << player->getFireRate() << std::endl;
+				}
+			}
+			else if ((*itr)->getType() == 4)
+			{
+				if (playerFirePattern == 1)
+				{
+					totalPlayerDamageUp += 0.2f;
+					totalPlayerFireRateUp += 0.2f;
+				}
+				playerFirePattern = 1;
+				player->setDamage(0.5f + totalPlayerDamageUp);
+				player->setFireRate(5.f - totalPlayerFireRateUp);
+				upgradeDeleted = true;
+			}
+			else if ((*itr)->getType() == 5)
+			{
+				if (playerFirePattern == 2)
+				{
+					totalPlayerDamageUp += 0.2f;
+					totalPlayerFireRateUp += 0.2f;
+				}
+				playerFirePattern = 2;
+				player->setDamage(1.f + totalPlayerDamageUp);
+				player->setFireRate(10.f - totalPlayerFireRateUp);
+				upgradeDeleted = true;
+			}
+			else if ((*itr)->getType() == 6)
+			{
+				if (playerFirePattern == 3)
+				{
+					totalPlayerDamageUp += 0.2f;
+					totalPlayerFireRateUp += 0.2f;
+				}
+				playerFirePattern = 3;
+				player->setDamage(0.2f + totalPlayerDamageUp);
+				player->setFireRate(20.f - totalPlayerFireRateUp);
+				std::cout << "player damage: " << player->getDamage() << std::endl;
+				upgradeDeleted = true;
+			}
+		}
+		if (upgradeDeleted)
+		{
+			points += 50 * combo;
+			itr = upgrades.erase(itr);
+			upgradeDeleted = false;
+		}
+		else
+			itr++;
+	}
+}
+
 //update the GUI
 void Game::updateGUI()
 {
 	std::stringstream ss;
 	ss << "POINTS: " << points;
-	pointText.setString(ss.str());
+	texts["pointText"]->setString(ss.str());
 	ss.str("");
 
 	ss << "COMBO: x" << combo;
-	comboText.setString(ss.str());
+	texts["comboText"]->setString(ss.str());
 	ss.str("");
 
 	ss << "HP: " << player->getHp();
-	playerHpText.setString(ss.str());
+	texts["playerHpText"]->setString(ss.str());
 }
 
 void Game::updateEnemyAnimation(Enemy* enemy)
@@ -882,7 +1006,7 @@ void Game::updatePlayerAnimation()
 	//else if the end of the spawn animation, update the animation to be the idle animation
 }
 
-void Game::updateExplosion()
+void Game::updateExplosions()
 {
 	auto itr = explosions.begin();
 	while (itr != explosions.end())
@@ -892,6 +1016,23 @@ void Game::updateExplosion()
 		if ((*itr)->getEndOfAnimation("explosion"))
 		{
 			itr = explosions.erase(itr);
+		}
+		else
+			itr++;
+	}
+}
+
+void Game::updateUpgrades()
+{
+	auto itr = upgrades.begin();
+	while (itr != upgrades.end())
+	{
+		(*itr)->setTime(deltaTime);
+		(*itr)->update();
+		if ((*itr)->canDelete())
+		{
+			std::cout << "upgrade deleted" << std::endl;
+			itr = upgrades.erase(itr);
 		}
 		else
 			itr++;
@@ -917,8 +1058,11 @@ void Game::updatePollEvents()
 			this->window->close(); 
 			break;
 		case sf::Event::KeyPressed:
-			if (this->ev.key.code == sf::Keyboard::Escape)
-				this->window->close();
+			if (this->ev.key.code == sf::Keyboard::Escape) 
+				this->window->close();	
+
+			if (this->ev.key.code == sf::Keyboard::R)
+				this->reset();
 			/*
 			if (this->ev.key.code == sf::Keyboard::Space && gameOver)
 			{
@@ -944,26 +1088,33 @@ void Game::render()
 	this->spaceBackground->render(*this->window);
 
 	//render enemies
-	for (auto &e : this->enemies)
+	for (auto &enemy : this->enemies)
 	{
-		e->render(*this->window);
+		if (enemy->getIsDamaged())
+			enemy->showDamaged(deltaTime);
+		enemy->render(*this->window);
 	}
 
 	//render enemy bullets
-	for (auto &b : this->enemyBullets)
+	for (auto &bullet : this->enemyBullets)
 	{
-		b->render(*this->window);
+		bullet->render(*this->window);
 	}
 
 	//render player bullets
-	for (auto &b : this->playerBullets) //render all the bullets to window
+	for (auto &bullet : this->playerBullets) //render all the bullets to window
 	{
-		b->render(*this->window);
+		bullet->render(*this->window);
 	}
 
-	for (auto& d : this->explosions)
+	for (auto& explosion : this->explosions)
 	{
-		d->render(*this->window);
+		explosion->render(*this->window);
+	}
+
+	for (auto& upgrade : this->upgrades)
+	{
+		upgrade->render(*this->window);
 	}
 
 	//render player
@@ -974,12 +1125,12 @@ void Game::render()
 	
 	if (pause)
 	{
-		window->draw(pauseText);
+		window->draw(*texts["pauseText"]);
 	}
 	//render game over text if player dies
 	if (this->player->getHp() <= 0.f)
 	{
-		window->draw(gameOverText);
+		window->draw(*texts["gameOverText"]);
 	}
 
 	//render the window
@@ -989,9 +1140,11 @@ void Game::render()
 //render the GUI
 void Game::renderGUI()
 {
-	window->draw(pointText);
-	window->draw(comboText);
-	window->draw(playerHpText);
+	for (auto& text : texts)
+	{
+		if (text.first != "gameOverText" && text.first != "pauseText")
+			window->draw(*text.second);
+	}
 }
 
 /*
@@ -1643,7 +1796,10 @@ void Game::bossWave()
 			/*if (enemy->getPos().y < 100.f)
 				enemy->move(0, 1);*/
 			if (enemy->getHp() <= enemy->getMaxHp() * 0.5f)
+			{
+				enemy->setSpriteColor(sf::Color(168, 30, 30, 255));
 				bossEnraged = true;
+			}
 		}
 		else if (enemy->getType() == 2 || enemy->getType() == 12)
 		{
@@ -1809,12 +1965,13 @@ void Game::spawnEnemyFour(sf::Vector2f initialPosition, unsigned posInWave)
 void Game::spawnBoss(sf::Vector2f initialPosition, unsigned posInWave)
 {
 	sf::FloatRect newHitbox(13, 13, 38, 38);
-	float hp = 300.f;
+	float hp = 600.f;
 	float damage = 1.f;
 	float fireRate = 100.f;
 	float movementSpeed = 0.7f * scale;
 	int type = 100;
-	this->enemies.push_back(new Enemy(*this->textures["bossEnemy"], type, hp, damage, fireRate, movementSpeed, newHitbox, initialPosition, posInWave, scale));
+	float size = 1.3f * scale;
+	this->enemies.push_back(new Enemy(*this->textures["bossEnemy"], type, hp, damage, fireRate, movementSpeed, newHitbox, initialPosition, posInWave, size));
 
 	Enemy* enemy = enemies.back();
 	sf::Texture* spawnTexture = this->textures["bossEnemySpawn"];
@@ -1892,7 +2049,7 @@ void Game::enemyTwoFirePattern()
 	float bulletSpeed = 4.f * scale;
 	float spreadAngle = pi / 18.f;
 
-	fireSpread(bulletTexture, bulletHitbox, bulletType, bulletSpeed, spreadAngle);
+	fireSpread("enemy", bulletTexture, bulletHitbox, bulletType, bulletSpeed, spreadAngle);
 }
 
 void Game::circleEnemyTwoFirePattern()
@@ -1900,8 +2057,9 @@ void Game::circleEnemyTwoFirePattern()
 	sf::FloatRect bulletHitbox(1, 1, 6, 6);
 	sf::Texture* bulletTexture = this->textures["enemyBullet"];
 	int bulletType = 10;
+	float bulletSpeed = 2.f * scale;
 
-	fireInCircle(bulletTexture, bulletHitbox, bulletType, enemyPos, 0);
+	fireInCircle("enemy", bulletTexture, bulletHitbox, bulletType, bulletSpeed, enemyPos, 0);
 }
 
 void Game::enemyThreeFirePattern()
@@ -1915,8 +2073,9 @@ void Game::burstEnemyThreeFirePattern()
 	sf::Texture* bulletTexture = this->textures["bigEnemyBullet"];
 	sf::FloatRect bulletHitbox(1, 1, 14, 14);
 	int bulletType = 12;
+	float bulletSpeed = 3.f * scale;
 
-	fireClusterShot(bulletTexture, bulletHitbox, bulletType);
+	fireClusterShot("enemy", bulletTexture, bulletHitbox, bulletType, bulletSpeed);
 }
 
 void Game::enemyFourFirePattern(Enemy* enemy)
@@ -1925,10 +2084,11 @@ void Game::enemyFourFirePattern(Enemy* enemy)
 	sf::FloatRect bulletHitbox(1, 1, 6, 6);
 	sf::Texture* bulletTexture = this->textures["enemyBullet"];
 	int bulletType = 10;
+	float bulletSpeed = 3.f * scale;
 	float bulletOffset = pi / 9.f;
 	baseEnemyAimDir = sf::Vector2f(enemyAimDir);
 	if (enemy->getBulletCounter() < 7)
-		fireWave(bulletTexture, bulletHitbox, bulletType, bulletOffset, baseEnemyAimDir, enemy);
+		fireWave(bulletTexture, bulletHitbox, bulletType, bulletSpeed, bulletOffset, baseEnemyAimDir, enemy);
 	else
 	{
 		enemy->setBulletCounter(0);
@@ -2012,7 +2172,8 @@ void Game::bossPatternOne(Enemy* enemy)
 	sf::FloatRect bulletHitbox(1, 1, 6, 6);
 	sf::Texture* bulletTexture = this->textures["enemyBullet"];
 	int bulletType = 10;
-	fireInCircle(bulletTexture, bulletHitbox, bulletType, enemyPos, offset);
+	float bulletSpeed = 3.f * scale;
+	fireInCircle("enemy", bulletTexture, bulletHitbox, bulletType, bulletSpeed, enemyPos, offset);
 }
 
 //cluster of bullets that explode into all directions : 20 %
@@ -2025,9 +2186,10 @@ void Game::bossPatternTwo(Enemy* enemy)
 	sf::Texture* bulletTexture = this->textures["bigEnemyBullet"];
 	sf::FloatRect bulletHitbox(1, 1, 14, 14);
 	int bulletType = 12;
+	float bulletSpeed = 2.5f * scale;
 
 	enemy->setBulletCounter(enemy->getBulletCounter() + 1);
-	fireClusterShot(bulletTexture, bulletHitbox, bulletType);
+	fireClusterShot("enemy", bulletTexture, bulletHitbox, bulletType, bulletSpeed);
 }
 
 //machine gun shots targeting the player for some time : 20 %
@@ -2041,9 +2203,10 @@ void Game::bossPatternThree(Enemy* enemy)
 
 	sf::FloatRect bulletHitbox(1, 1, 6, 6);
 	sf::Texture* bulletTexture = this->textures["enemyBullet"];
+	float bulletSpeed = 3.f * scale;
 	int bulletType = 10;
 
-	fireSpread(bulletTexture, bulletHitbox, bulletType, 3.f, pi / 8.f);
+	fireSpread("enemy", bulletTexture, bulletHitbox, bulletType, bulletSpeed, pi / 8.f);
 }
 
 //shoot a wave that bounces three times
@@ -2056,33 +2219,54 @@ void Game::bossPatternFour(Enemy* enemy)
 	sf::FloatRect bulletHitbox(1, 1, 6, 6);
 	sf::Texture* bulletTexture = this->textures["bouncingEnemyBullet"];
 	int bulletType = 13;
+	float bulletSpeed = 3.f * scale;
 	float bulletOffset = pi / 9.f;
 	baseEnemyAimDir = sf::Vector2f(enemyAimDir);
 
-	fireWave(bulletTexture, bulletHitbox, bulletType, bulletOffset, baseEnemyAimDir, enemy);
+	fireWave(bulletTexture, bulletHitbox, bulletType, bulletSpeed, bulletOffset, baseEnemyAimDir, enemy);
 }
 
 //fire bullets in a spread
-void Game::fireSpread(sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed, float spreadDegree)
+void Game::fireSpread(const std::string character, sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed, float spreadDegree)
 {
-	sf::Vector2f newEnemyAimDir;
-	this->enemyBullets.push_back(new Bullet(*bulletTexture, bulletType, bulletHitbox, enemyPos, enemyAngle, enemyAimDir, bulletSpeed, scale));
+	if (character == "player")
+	{
+		sf::Vector2f newPlayerAimDir;
+		this->playerBullets.push_back(new Bullet(*bulletTexture, bulletType, bulletHitbox, playerPos, mouseAngle, playerAimDir, bulletSpeed, scale));
 
-	newEnemyAimDir = sf::Vector2f(
-		enemyAimDir.x * (cos(spreadDegree)) - enemyAimDir.y * (sin(spreadDegree)),
-		enemyAimDir.y * (cos(spreadDegree)) + enemyAimDir.x * (sin(spreadDegree))
-	);
-	this->enemyBullets.push_back(new Bullet(*bulletTexture, bulletType, bulletHitbox, enemyPos, enemyAngle, newEnemyAimDir, bulletSpeed, scale));
+		newPlayerAimDir = sf::Vector2f(
+			playerAimDir.x * (cos(spreadDegree)) - playerAimDir.y * (sin(spreadDegree)),
+			playerAimDir.y * (cos(spreadDegree)) + playerAimDir.x * (sin(spreadDegree))
+		);
+		this->playerBullets.push_back(new Bullet(*bulletTexture, bulletType, bulletHitbox, playerPos, mouseAngle, newPlayerAimDir, bulletSpeed, scale));
 
-	newEnemyAimDir = sf::Vector2f(
-		enemyAimDir.x * (cos(spreadDegree)) + enemyAimDir.y * (sin(spreadDegree)),
-		enemyAimDir.y * (cos(spreadDegree)) - enemyAimDir.x * (sin(spreadDegree))
-	);
-	this->enemyBullets.push_back(new Bullet(*bulletTexture, bulletType, bulletHitbox, enemyPos, enemyAngle, newEnemyAimDir, bulletSpeed, scale));
+		newPlayerAimDir = sf::Vector2f(
+			playerAimDir.x * (cos(spreadDegree)) + playerAimDir.y * (sin(spreadDegree)),
+			playerAimDir.y * (cos(spreadDegree)) - playerAimDir.x * (sin(spreadDegree))
+		);
+		this->playerBullets.push_back(new Bullet(*bulletTexture, bulletType, bulletHitbox, playerPos, mouseAngle, newPlayerAimDir, bulletSpeed, scale));
+	}
+	else
+	{
+		sf::Vector2f newEnemyAimDir;
+		this->enemyBullets.push_back(new Bullet(*bulletTexture, bulletType, bulletHitbox, enemyPos, enemyAngle, enemyAimDir, bulletSpeed, scale));
+
+		newEnemyAimDir = sf::Vector2f(
+			enemyAimDir.x * (cos(spreadDegree)) - enemyAimDir.y * (sin(spreadDegree)),
+			enemyAimDir.y * (cos(spreadDegree)) + enemyAimDir.x * (sin(spreadDegree))
+		);
+		this->enemyBullets.push_back(new Bullet(*bulletTexture, bulletType, bulletHitbox, enemyPos, enemyAngle, newEnemyAimDir, bulletSpeed, scale));
+
+		newEnemyAimDir = sf::Vector2f(
+			enemyAimDir.x * (cos(spreadDegree)) + enemyAimDir.y * (sin(spreadDegree)),
+			enemyAimDir.y * (cos(spreadDegree)) - enemyAimDir.x * (sin(spreadDegree))
+		);
+		this->enemyBullets.push_back(new Bullet(*bulletTexture, bulletType, bulletHitbox, enemyPos, enemyAngle, newEnemyAimDir, bulletSpeed, scale));
+	}
 }
 
 //fire bullets in a wave
-void Game::fireWave(sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletOffset, sf::Vector2f baseAimDir, Enemy* enemy)
+void Game::fireWave(sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed, float bulletOffset, sf::Vector2f baseAimDir, Enemy* enemy)
 {
 	//on the first bullet, set the base direction to shoot at
 	enemy->setBulletCounter(enemy->getBulletCounter() + 1);
@@ -2143,11 +2327,11 @@ void Game::fireWave(sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int 
 		enemy->setBulletCounter(0);
 	}
 
-	this->enemyBullets.push_back(new Bullet(*bulletTexture, bulletType, bulletHitbox, enemyPos, enemyAngle, enemyAimDir, 3.f, scale));
+	this->enemyBullets.push_back(new Bullet(*bulletTexture, bulletType, bulletHitbox, enemyPos, enemyAngle, enemyAimDir, bulletSpeed, scale));
 }
 
 //fire bullets in a circle
-void Game::fireInCircle(sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType, sf::Vector2f centerPos, float offset)
+void Game::fireInCircle(const std::string character, sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed, sf::Vector2f centerPos, float offset)
 {
 	float degree = offset;
 	float radians;
@@ -2156,41 +2340,303 @@ void Game::fireInCircle(sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, 
 	{
 		radians = degree * pi / 180.f;
 		aimDir = sf::Vector2f(cos(radians), sin(radians));
-		enemyBullets.push_back(new Bullet(*bulletTexture, bulletType, bulletHitbox, centerPos, enemyAngle, aimDir, 3.f, scale));
+		if (character == "player")
+			playerBullets.push_back(new Bullet(*bulletTexture, bulletType, bulletHitbox, centerPos, mouseAngle, aimDir, bulletSpeed, scale));
+		else
+			enemyBullets.push_back(new Bullet(*bulletTexture, bulletType, bulletHitbox, centerPos, enemyAngle, aimDir, bulletSpeed, scale));
 		degree += 30.f;
 	}
 }
 
 //fire bullets as a cluster
-void Game::fireClusterShot(sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType)
+void Game::fireClusterShot(const std::string character, sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed)
 {
-	enemyBullets.push_back(new Bullet(*bulletTexture, bulletType, bulletHitbox, enemyPos, enemyAngle, enemyAimDir, 3.f, scale));
-
-	Bullet* bullet = enemyBullets.back();
-	bullet->setBasePlayerPos(playerPos);
+	if (character == "player")
+	{
+		playerBullets.push_back(new Bullet(*bulletTexture, bulletType, bulletHitbox, playerPos, mouseAngle, playerAimDir, bulletSpeed, scale));
+		Bullet* bullet = playerBullets.back();
+		bullet->setBasePos(mousePosView);
+	}
+	else
+	{
+		enemyBullets.push_back(new Bullet(*bulletTexture, bulletType, bulletHitbox, enemyPos, enemyAngle, enemyAimDir, bulletSpeed, scale));
+		Bullet* bullet = enemyBullets.back();
+		bullet->setBasePos(playerPos);
+	}
 }
 
 //burst the cluster shot
-void Game::burstClusterShot(sf::Vector2f burstPos)
+void Game::burstClusterShot(const std::string character, sf::Vector2f burstPos, sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed)
 {
-	sf::FloatRect bulletHitbox(1, 1, 6, 6);
-	sf::Texture* bulletTexture = this->textures["enemyBullet"];
-	int bulletType = 10;
-	fireInCircle(bulletTexture, bulletHitbox, bulletType, burstPos, 0);
+	fireInCircle(character, bulletTexture, bulletHitbox, bulletType, bulletSpeed, burstPos, 0);
+}
+
+//fires double bullets
+void Game::fireDoubleBullets(const std::string character, sf::Texture * bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed)
+{
+	//will need to get the angles from the two sides of the player;
+	//get the direction of both sides
+	sf::Vector2f leftOfCharacter;
+	sf::Vector2f rightOfCharacter;
+	sf::Vector2f leftPos, rightPos;
+	sf::Vector2f centerPos;
+	sf::Vector2f currentAimDir;
+	float currAngle;
+	if (character == "player")
+	{
+		centerPos = playerPos;
+		currAngle = mouseAngle;
+		currentAimDir = playerAimDir;
+	}
+	else
+	{
+		centerPos = enemyPos;
+		currAngle = acos(enemyAimDir.x);
+		currentAimDir = enemyAimDir;
+	}
+
+	float angle = (pi / 2.f) - acos(playerAimDir.x);
+	float radius = 20.f;
+	//should give the x and y	of a position right/left of the player
+	//ERROR: shooting angle is
+	float deltaX = (radius * cos(angle));
+	float deltaY = (radius * sin(angle));
+
+	//if shooting up right //both bullets fire from left
+	if (playerAimDir.y < 0)
+	{
+		leftPos = sf::Vector2f(playerPos.x - deltaX, playerPos.y - deltaY);
+		rightPos = sf::Vector2f(playerPos.x + deltaX, playerPos.y + deltaY);
+	}
+	//if shooting downwards:
+	else
+	{
+		leftPos = sf::Vector2f(playerPos.x - deltaX, playerPos.y + deltaY);
+		rightPos = sf::Vector2f(playerPos.x + deltaX, playerPos.y - deltaY);
+	}
+
+	//this->playerBullets.push_back(new Bullet(*newTexture, bulletType, bulletHitbox, playerPos, mouseAngle, playerAimDir, bulletSpeed, scale));
+	playerBullets.push_back(new Bullet(*bulletTexture, bulletType, bulletHitbox, rightPos, currAngle, currentAimDir, bulletSpeed, scale));
+	playerBullets.push_back(new Bullet(*bulletTexture, bulletType, bulletHitbox, leftPos, currAngle, currentAimDir, bulletSpeed, scale));
+
 }
 
 //runs the game
-void Game::run()
+bool Game::run()
 {
 	while (running())
 	{
 		this->updateDeltaTime();
 		this->updatePollEvents();
 		this->updatePause();
-		if (player->getHp() > 0.f && !pause)
+		//std::cout << resetVal << std::endl;
+		if (player->getHp() > 0.f && !pause && !resetVal)
 			update();
-		else
+		else {
 			gameOver = true;
+			std::cout << "ResetVal:" << resetVal << std::endl;
+			return gameOver && !this->resetVal;
+		}
 		render();
 	}
+	gameOver = true;
+	std::cout << "ResetVal:" << resetVal << std::endl;
+	return gameOver && !this->resetVal;
+}
+
+//runs the game
+void Game::run2()
+{
+	while (running())
+	{
+		this->updateDeltaTime();
+		this->updatePollEvents();
+		this->updatePause();
+		//std::cout << resetVal << std::endl;
+		if (player->getHp() > 0.f && !pause && !resetVal)
+			update();
+		else {
+			gameOver = true;
+
+			if (resetVal) {
+				reset2();
+			}
+		}
+		render();
+	}
+}
+
+//power ups: damage up, hp up, fire rate up; other power ups: double ray, spread shot, sniper (?)
+void Game::dropPowerUp(Enemy* enemy)
+{
+	int dmgUpChance, hpUpChance, fireRateUpChance, doubleBulletUpChance, spreadBulletUpChance, burstBulletUpChance, dropType;
+	sf::Texture* newTexture = nullptr;
+	int randChance = rand() % 100 + 1;
+	int dropChance;
+	//TEST
+	//upgrades.push_back(new Upgrade(this->textures["doubleBulletUpIdle"], enemy->getPos(), 30.f, 4, deltaTime, scale));
+	//upgrades.push_back(new Upgrade(this->textures["spreadBulletUpIdle"], enemy->getPos(), 30.f, 5, deltaTime, scale));
+	//upgrades.push_back(new Upgrade(this->textures["burstBulletUpIdle"], enemy->getPos(), 30.f, 6, deltaTime, scale));
+
+	if (enemy->getType() == 0 || enemy->getType() == 10)
+	{
+		if (enemy->getType() == 0)
+			dropChance = 15;
+		else
+			dropChance = 25;
+		dmgUpChance = 28;
+		hpUpChance = 28 + dmgUpChance;
+		fireRateUpChance = 28 + hpUpChance;
+		doubleBulletUpChance = 5 + fireRateUpChance;
+		spreadBulletUpChance = 5 + doubleBulletUpChance;
+		burstBulletUpChance = 6 + spreadBulletUpChance;
+	}
+	else if (enemy->getType() == 1 || enemy->getType() == 11)
+	{
+		//TEST
+		if (enemy->getType() == 1)
+			dropChance = 35;
+		else
+			dropChance = 75;
+		dmgUpChance = 18;
+		hpUpChance = 28 + dmgUpChance;
+		fireRateUpChance = 18 + hpUpChance;
+		doubleBulletUpChance = 10 + fireRateUpChance;
+		spreadBulletUpChance = 18 + doubleBulletUpChance;
+		burstBulletUpChance = 8 + spreadBulletUpChance;
+	}
+	else if (enemy->getType() == 2 || enemy->getType() == 12)
+	{
+		if (enemy->getType() == 2)
+			dropChance = 35;
+		else
+			dropChance = 75;
+		dmgUpChance = 20;
+		hpUpChance = 20 + dmgUpChance;
+		fireRateUpChance = 20 + hpUpChance;
+		doubleBulletUpChance = 10 + fireRateUpChance;
+		spreadBulletUpChance = 10 + doubleBulletUpChance;
+		burstBulletUpChance = 20 + spreadBulletUpChance;
+	}
+	else if (enemy->getType() == 3)
+	{
+		dropChance = 75;
+		dmgUpChance = 14;
+		hpUpChance = 13 + dmgUpChance;
+		fireRateUpChance = 13 + hpUpChance;
+		doubleBulletUpChance = 20 + fireRateUpChance;
+		spreadBulletUpChance = 20 + doubleBulletUpChance;
+		burstBulletUpChance = 20 + spreadBulletUpChance;
+	}
+	else if (enemy->getType() == 100)
+	{
+		dropChance = 0;
+	}
+	if (randChance <= dropChance)
+	{
+		//get a random drop based on the chance of powerups dropping
+		dropType = rand() % 100 + 1;
+		if (dropType <= dmgUpChance)
+		{
+			newTexture = this->textures["damageUpIdle"];
+			dropType = 1;
+		}
+		else if (dropType <= hpUpChance)
+		{
+			newTexture = this->textures["hpUpIdle"];
+			dropType = 2;
+		}
+		else if (dropType <= fireRateUpChance)
+		{
+			newTexture = this->textures["fireRateUpIdle"];
+			dropType = 3;
+		}
+		else if (dropType <= doubleBulletUpChance)
+		{
+			newTexture = this->textures["doubleBulletUpIdle"];
+			dropType = 4;
+		}
+		else if (dropType <= spreadBulletUpChance)
+		{
+			newTexture = this->textures["spreadBulletUpIdle"];
+			dropType = 5;
+		}
+		else if (dropType <= burstBulletUpChance)
+		{
+			newTexture = this->textures["burstBulletUpIdle"];
+			dropType = 6;
+		}
+		else
+			std::cout << "*********EMPTY POWERUP***********" << std::endl;
+
+		upgrades.push_back(new Upgrade(newTexture, enemy->getPos(), 30.f, dropType, deltaTime, scale));
+	}
+}
+
+void Game::reset() {
+
+	resetVal = true;
+}
+
+void Game::reset2() {
+
+	delete this->window;
+
+	delete this->player;
+
+	//delete textures
+	for (auto& texture : this->textures)
+	{
+		delete texture.second;
+	}
+	this->textures.clear();
+
+	for (auto& text : this->texts)
+	{
+		delete text.second;
+	}
+	this->texts.clear();
+
+	//delete player bullets
+	for (auto* bullet : this->playerBullets)
+	{
+		delete bullet;
+	}
+	this->playerBullets.clear();
+
+	//delete enemy bullets
+	for (auto* bullet : this->enemyBullets)
+	{
+		delete bullet;
+	}
+	this->enemyBullets.clear();
+	//delete enemies
+	for (auto* enemy : this->enemies)
+	{
+		delete enemy;
+	}
+	this->enemies.clear();
+
+	//delete all the explosion animations
+	for (auto* explosion : this->explosions)
+	{
+		delete explosion;
+	}
+	this->explosions.clear();
+
+	for (auto* upgrade : this->upgrades)
+	{
+		delete upgrade;
+	}
+	this->upgrades.clear();
+
+	delete spaceBackground;
+	
+	this->initVariables();
+	this->initWindow();
+	this->initTextures();
+	this->initGUI();
+	this->initWorld();
+	this->initPlayer();
+	this->initEnemy();
 }

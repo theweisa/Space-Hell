@@ -11,8 +11,10 @@ private:
 	float fireCooldown;
 	bool destroyed;
 	unsigned posInWave;
+	bool isDamaged;
 	sf::Vector2f enemyToPlayerDir;
 	int bulletCounter;
+	float damageTimer;
 
 public:
 	//constructor / destructor
@@ -27,13 +29,17 @@ public:
 	const sf::Vector2f getEnemyToPlayerDir() const;
 	const int getBulletCounter() const;
 	const float getSpeed() const;
+	const bool getIsDamaged() const;
 
 	//mutator
 	void setDestroyed(bool destroyed_);
 	void setEnemyToPlayerDir(sf::Vector2f enemyToPlayerDir);
 	void setBulletCounter(int newBulletCounter);
+	void setIsDamaged(bool damaged);
+	void restartDamageTimer();
 
 	//functions
+	void showDamaged(float & deltaTime);
 	void update() override;
 };
 
