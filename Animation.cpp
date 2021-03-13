@@ -1,12 +1,16 @@
 #include "Animation.h"
 
+//initialize the animation
 Animation::Animation(sf::Sprite& newSprite, sf::Texture& newSpriteSheet, float newSpeed, int startFrameX, int startFrameY, int endFramesX, int endFramesY, int newWidth, int newHeight)
 : sprite(newSprite), spriteSheet(newSpriteSheet), animationTimer(newSpeed), width(newWidth), height(newHeight)
 {
-	timer = 0.f;
-	endOfAnimation = false;
+	timer = 0.f;	//timer set to 0
+	endOfAnimation = false;	
 
+	//the first frame of the animation is a certain rect of the sprite sheet
 	startRect = sf::IntRect(startFrameX * width, startFrameY * height, width, height);
+
+	//current frame starts at the first frame
 	currentRect = startRect;
 	
 	//the last rect is the one at endFramesX * width and height
@@ -19,6 +23,7 @@ Animation::Animation(sf::Sprite& newSprite, sf::Texture& newSpriteSheet, float n
 	this->sprite.setTextureRect(startRect);
 }
 
+//play an animation
 void Animation::play(const float & deltaTime)
 {
 	//update the timer
@@ -56,17 +61,15 @@ void Animation::play(const float & deltaTime)
 	}
 }
 
+//reset the animation
 void Animation::reset()
 {
 	timer = 0.f;
 	currentRect = startRect;
 }
 
+//get if the animation is on the last frame
 const bool Animation::getEndOfAnimation() const
 {
 	return endOfAnimation;
-}
-
-Animation::~Animation()
-{
 }

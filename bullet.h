@@ -3,6 +3,10 @@
 
 #include "entity.h"
 
+/*
+BULLET CLASS
+inherits from entity class: has direction and base position being fired at, as well as bullet type and *can* bounce
+*/
 class Bullet : public Entity
 {
 private:
@@ -11,9 +15,7 @@ private:
 	int type;
 	int maxBounce;
 public:
-	Bullet();
 	Bullet(sf::Texture& texture, int bulletType, sf::FloatRect newHitbox, sf::Vector2f pos, float angle, sf::Vector2f dir, float movementSpeed, float scale);
-	virtual ~Bullet();
 
 	//accessor
 	const int getType() const;

@@ -12,6 +12,7 @@ void Character::move(const float dirX, const float dirY)
 	this->sprite.move(this->movementSpeed * dirX, this->movementSpeed * dirY); 
 }
 
+//update the animations
 void Character::updateAnimation(std::string key, float & deltaTime)
 {
 	animations[key]->play(deltaTime);
@@ -40,7 +41,6 @@ const bool Character::canFire()
 }
 
 
-//returns the damage of the character
 const float Character::getDamage() const
 {
 	return damage;
@@ -81,6 +81,7 @@ const bool Character::endOfSpawnAnimation()
 	return animations[spawnKey]->getEndOfAnimation();
 }
 
+//mutators
 void Character::setHp(float newHp)
 {
 	this->hp = newHp;
@@ -89,6 +90,11 @@ void Character::setHp(float newHp)
 void Character::setDamage(float newDamage)
 {
 	this->damage = newDamage;
+}
+
+void Character::setMovementSpeed(float newMS)
+{
+	movementSpeed = newMS;
 }
 
 //mutator

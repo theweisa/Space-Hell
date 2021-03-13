@@ -2,39 +2,27 @@
 #define PLAYER_H
 #include "character.h"
 
-class Player : public Character {
+/*
+PLAYER CLASS
+player has a damaged animation, and has preset variables
+*/
+class Player : public Character 
+{
 private:
-	std::string damagedKey;
-	//private variables
-	void initVariables(float scale);
-	void initTexture();
-	void initSprite(sf::Vector2f initialPos, float scale);
-	void initHitbox();
-
-
-	int gunLevel = 0;
-	bool enabledRTUpgrade = false;
-
-	//Timer for gunlevel
-	float dtMultiplier;
-	float aliveTimer = 0;
-	float aliveTimerMax;
-
-	//timer for firerate
-	float RTaliveTimer = 0;
-	float RTaliveTimerMax;
-
+	std::string damagedKey;				//animation key for when a player is damaged
+	void initVariables(float scale);	//initialize player variables
+	void initTexture();					//initialize the player texture
+	void initSprite(sf::Vector2f initialPos, float scale);		//initialize the player sprite
+	void initHitbox();					//initialize the player hitbox
 
 public:
 	//constructor/destructor
 	Player(sf::Vector2f initialPos, float scale);
-	~Player();
 
 	//update
 	void update() override;
 
-	//functions
-	//mutator
+	//set the damaged animation
 	void setDamagedAnimation(std::string key, sf::Texture* textureSheet, int endFrameX, int endFrameY, int width, int height);
 
 	//accessor

@@ -1,6 +1,7 @@
 #ifndef BACKGROUND_H
 #define BACKGROUND_H
 
+//BACKGROUND CLASS: plays a background animation; that is all
 class Background : public Entity
 {
 private:
@@ -16,7 +17,6 @@ public:
 		sprite.setPosition(newPos);
 
 		key = "background";
-		//1024x768
 		//640 480
 		animations[key] = new Animation(sprite, *newTexture, 5.f, 0, 0, 7, 0, 640, 480);
 		deltaTime = 0;

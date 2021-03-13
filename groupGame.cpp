@@ -1,5 +1,6 @@
 #include "game.h"
 
+//main code for the game!
 int main()
 {
 	srand(static_cast<unsigned>(time(0)));

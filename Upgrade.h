@@ -9,36 +9,32 @@ using namespace sf;
 Upgrade class:
 -drops where the enemy died
 -despawns after x time
--if hitbox interacts with player, player picks it up and fire pattern changes
--that is all!
+-has an idle animation
 */
 class Upgrade : public Entity {
 
 private:
 	std::string key;
 	float deltaTime;
-	//float dtMultiplier;
 	int type;
 	float despawnTimer;
 	float despawnTimerMax;
 
 public:
-
+	//constructor
 	Upgrade(Texture* texture, Vector2f position, float despawnTimerMax, int type, float & currentTime, float scale);
 
-	inline const int& getType()const { return this->type; }
-	inline bool canDelete() { return this->despawnTimer >= this->despawnTimerMax; }
-
-	//bool checkCollision(FloatRect rect);
-
+	//mutator
 	void setTime(float & time);
 
+	//accessor
 	const float getTime() const;
+	const int getType() const;
 
+	//functions
+	//check if the upgrade despawn timer exceeds the max timer
+	bool isDespawned();
 	void update() override;
-
-	int returnType();
-
 };
 
 #endif

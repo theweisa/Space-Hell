@@ -1,10 +1,6 @@
 #include "bullet.h"
 
-Bullet::Bullet()
-{
-
-}
-
+//bullet constructor
 Bullet::Bullet(sf::Texture& texture, int bulletType, sf::FloatRect newHitbox, sf::Vector2f pos, float angle, sf::Vector2f dir, float newMovementSpeed, float scale)
 {
 	this->sprite.setTexture(texture);
@@ -37,13 +33,7 @@ Bullet::Bullet(sf::Texture& texture, int bulletType, sf::FloatRect newHitbox, sf
 	this->updateRotation();
 }
 
-Bullet::~Bullet()
-{
-
-}
-
 //accessors
-
 const int Bullet::getType() const
 {
 	return type;
@@ -65,7 +55,6 @@ const sf::Vector2f Bullet::getDir() const
 }
 
 //mutators
-
 void Bullet::setMaxBounce(int newMaxBounce)
 {
 	maxBounce = newMaxBounce;
@@ -85,5 +74,10 @@ void Bullet::setBasePos(sf::Vector2f newPos)
 void Bullet::update()
 {
 	//bullet moves at the set direction
-	this->sprite.move(this->movementSpeed * this->direction);
+	if (type == 12)
+	{
+		sprite.move(0.0125f * movementSpeed * (basePos.x - sprite.getPosition().x), 0.0125f * movementSpeed * (basePos.y - sprite.getPosition().y));
+	}
+	else
+		this->sprite.move(this->movementSpeed * this->direction);
 }

@@ -30,7 +30,6 @@ void Player::initSprite(sf::Vector2f initialPos, float scale)
 
 	this->sprite.setOrigin(sf::Vector2f(sprite.getTexture()->getSize().x * 0.5f, sprite.getTexture()->getSize().x * 0.5f));
 	//resize the sprite
-	//sprite.setScale(2.f, 2.f);
 	this->sprite.scale(1.1f * scale, 1.1f * scale);
 	//set the initialize position of the sprite to these coords
 	this->sprite.setPosition(initialPos);	
@@ -54,18 +53,7 @@ Player::Player(sf::Vector2f initialPos, float scale)
 	this->initHitbox();
 }
 
-Player::~Player()
-{
-	
-}
-
-//update character
-void Player::update()
-{
-	this->updateFireRate();
-	this->updateRotation();
-}
-
+//set the damaged animation
 void Player::setDamagedAnimation(std::string key, sf::Texture * textureSheet, int endFrameX, int endFrameY, int width, int height)
 {
 	damagedKey = key;
@@ -76,4 +64,11 @@ void Player::setDamagedAnimation(std::string key, sf::Texture * textureSheet, in
 const std::string Player::getDamagedKey() const
 {
 	return damagedKey;
+}
+
+//update character
+void Player::update()
+{
+	this->updateFireRate();
+	this->updateRotation();
 }
