@@ -5,8 +5,8 @@
 */
 
 //constructor
-Game::Game() 
-{ 
+Game::Game()
+{
 	//initialize the game variables
 	this->initVariables();
 
@@ -27,7 +27,7 @@ Game::Game()
 }
 
 //destructor
-Game::~Game() 
+Game::~Game()
 {
 	//delete the window
 	delete this->window;
@@ -36,49 +36,49 @@ Game::~Game()
 	delete this->player;
 
 	//delete textures
-	for (auto& texture : this->assets)
+	for (auto &texture : this->assets)
 	{
 		delete texture.second;
 	}
-	
+
 	//delete texts
-	for (auto& text : this->texts)
+	for (auto &text : this->texts)
 	{
 		delete text.second;
 	}
 
 	//delete player bullets
-	for (auto* bullet : this->playerBullets)
+	for (auto *bullet : this->playerBullets)
 	{
 		delete bullet;
 	}
 
 	//delete enemy bullets
-	for (auto* bullet : this->enemyBullets)
+	for (auto *bullet : this->enemyBullets)
 	{
 		delete bullet;
 	}
 
 	//delete enemies
-	for (auto* enemy : this->enemies)
+	for (auto *enemy : this->enemies)
 	{
 		delete enemy;
 	}
 
 	//delete all the explosion animations
-	for (auto* explosion : this->explosions)
+	for (auto *explosion : this->explosions)
 	{
 		delete explosion;
 	}
 
 	//delete all the upgrades
-	for (auto* upgrade : this->upgrades)
+	for (auto *upgrade : this->upgrades)
 	{
 		delete upgrade;
 	}
 
 	//delete all the sounds
-	for (auto& s : this->sounds)
+	for (auto &s : this->sounds)
 	{
 		delete s.second;
 	}
@@ -101,15 +101,17 @@ void Game::initVariables()
 	this->gameStarted = false;
 
 	this->displayCredits = false;
-	
+
 	this->displayOptions = false;
 
 	this->window = nullptr;
 
 	this->gameOver = false;
 
+	this->resetVal = false;
+
 	this->pause = false;
-	this->select = -1;		//for moving past the game over screen
+	this->select = -1; //for moving past the game over screen
 
 	//initialize the pause buffer; one second
 	this->pauseBufferMax = 0.5f;
@@ -124,7 +126,7 @@ void Game::initVariables()
 	this->combo = 1;
 
 	//set the first wave
-	this->currentWave = 11;
+	this->currentWave = 1;
 
 	//delta time is 0
 	this->deltaTime = 0.f;
@@ -145,7 +147,6 @@ void Game::initWindow()
 	this->videoMode.height = 768;
 	this->videoMode.width = 1024;
 	this->window = new sf::RenderWindow(this->videoMode, "Game", sf::Style::Titlebar | sf::Style::Close | sf::Style::Resize); //dynamically allocate mem for window
-
 
 	//height of the window
 	windowHeight = static_cast<float>(window->getSize().y);
@@ -291,17 +292,17 @@ void Game::initGUI()
 	//add game over text
 	addText("gameOverText", static_cast<unsigned>(40.f * scale), sf::Color::White, "GAME OVER", sf::Vector2f(0.f, 0.f));
 	texts["gameOverText"]->setPosition(sf::Vector2f((windowWidth - texts["gameOverText"]->getGlobalBounds().width) * 0.5f,
-		(windowHeight - texts["gameOverText"]->getGlobalBounds().height) * 0.5f));
+													(windowHeight - texts["gameOverText"]->getGlobalBounds().height) * 0.5f));
 
 	//add level complete text
 	addText("levelCompleteText", static_cast<unsigned>(40.f * scale), sf::Color::White, "LEVEL COMPLETE", sf::Vector2f(0.f, 0.f));
 	texts["levelCompleteText"]->setPosition(sf::Vector2f((windowWidth - texts["levelCompleteText"]->getGlobalBounds().width) * 0.5f,
-		(windowHeight - texts["levelCompleteText"]->getGlobalBounds().height) * 0.5f));
+														 (windowHeight - texts["levelCompleteText"]->getGlobalBounds().height) * 0.5f));
 
-	//add pause text 
+	//add pause text
 	addText("pauseText", static_cast<unsigned>(40.f * scale), sf::Color::White, "PAUSE", sf::Vector2f(0.f, 0.f));
 	texts["pauseText"]->setPosition(sf::Vector2f((windowWidth - texts["pauseText"]->getGlobalBounds().width) * 0.5f,
-		(windowHeight - texts["pauseText"]->getGlobalBounds().height) * 0.2f));
+												 (windowHeight - texts["pauseText"]->getGlobalBounds().height) * 0.2f));
 
 	//add score text
 	addText("scoreText", static_cast<unsigned>(30.f * scale), sf::Color::White, "", sf::Vector2f(0.f, 0.f));
@@ -309,37 +310,37 @@ void Game::initGUI()
 	//add main menu text
 	addText("returnToMainMenuText", static_cast<unsigned>(20.f * scale), sf::Color::White, "Return to Main Menu", sf::Vector2f(0.f, 0.f));
 	texts["returnToMainMenuText"]->setPosition(sf::Vector2f((windowWidth - texts["returnToMainMenuText"]->getGlobalBounds().width) * 0.5f,
-		(windowHeight - texts["returnToMainMenuText"]->getGlobalBounds().height) * 0.45f));
+															(windowHeight - texts["returnToMainMenuText"]->getGlobalBounds().height) * 0.45f));
 
 	//add restart level text
 	addText("restartLevelText", static_cast<unsigned>(20.f * scale), sf::Color::White, "Restart Level", sf::Vector2f(0.f, 0.f));
 	texts["restartLevelText"]->setPosition(sf::Vector2f((windowWidth - texts["restartLevelText"]->getGlobalBounds().width) * 0.5f,
-		(windowHeight - texts["restartLevelText"]->getGlobalBounds().height) * 0.55f));
+														(windowHeight - texts["restartLevelText"]->getGlobalBounds().height) * 0.55f));
 
 	//add title screen text
 	addText("titleScreenText", static_cast<unsigned>(50.f * scale), sf::Color::White, "SPACE HELL", sf::Vector2f(0.f, 0.f));
 	texts["titleScreenText"]->setPosition(sf::Vector2f((windowWidth - texts["titleScreenText"]->getGlobalBounds().width) * 0.5f,
-		(windowHeight - texts["titleScreenText"]->getGlobalBounds().height) * 0.4f));
+													   (windowHeight - texts["titleScreenText"]->getGlobalBounds().height) * 0.4f));
 
 	addText("startGameText", static_cast<unsigned>(20.f * scale), sf::Color::White, "Start Game", sf::Vector2f(0.f, 0.f));
 	texts["startGameText"]->setPosition(sf::Vector2f((windowWidth - texts["startGameText"]->getGlobalBounds().width) * 0.5f,
-		(windowHeight - texts["startGameText"]->getGlobalBounds().height) * 0.6f));
+													 (windowHeight - texts["startGameText"]->getGlobalBounds().height) * 0.6f));
 
 	addText("optionsText", static_cast<unsigned>(20.f * scale), sf::Color::White, "Options", sf::Vector2f(0.f, 0.f));
 
 	addText("creditsText", static_cast<unsigned>(20.f * scale), sf::Color::White, "Credits", sf::Vector2f(0.f, 0.f));
 	texts["creditsText"]->setPosition(sf::Vector2f((windowWidth - texts["creditsText"]->getGlobalBounds().width) * 0.5f,
-		(windowHeight - texts["creditsText"]->getGlobalBounds().height) * 0.75f));
+												   (windowHeight - texts["creditsText"]->getGlobalBounds().height) * 0.75f));
 
 	const std::string credits = "-----CREDITS-----\n****Developers****\n- Andrew Wei\n- Ku Yi Sien\n- Kena Shi\n- Kaeda Hamada\n\n****Art Direction****\n- Andrew Wei\n\n****Sound Direction****\n- Sebastian Eisenbach\n- Kaeda Hamda";
 
 	addText("displayCredits", static_cast<unsigned>(17.5f * scale), sf::Color::White, credits, sf::Vector2f(0.f, 0.f));
 	texts["displayCredits"]->setPosition(sf::Vector2f((windowWidth - texts["displayCredits"]->getGlobalBounds().width) * 0.5f,
-		(windowHeight - texts["displayCredits"]->getGlobalBounds().height) * 0.5f));
+													  (windowHeight - texts["displayCredits"]->getGlobalBounds().height) * 0.5f));
 
 	addText("goBackText", static_cast<unsigned>(20.f * scale), sf::Color::White, "Go Back", sf::Vector2f(0.f, 0.f));
 	texts["goBackText"]->setPosition(sf::Vector2f((windowWidth - texts["goBackText"]->getGlobalBounds().width) * 0.5f,
-		(windowHeight - texts["goBackText"]->getGlobalBounds().height) * 0.8f));
+												  (windowHeight - texts["goBackText"]->getGlobalBounds().height) * 0.8f));
 
 	//init the pause screen texture
 	displayScreen.setTexture(*assets["displayScreen"]);
@@ -357,12 +358,12 @@ void Game::initGUI()
 //sets a text's font, size, color, the initial string, and its position
 void Game::addText(const std::string key, unsigned charSize, sf::Color color, const std::string initialText, sf::Vector2f initialPos)
 {
-	texts[key] = new sf::Text;					//create new text
-	texts[key]->setFont(font);					//set the font
-	texts[key]->setCharacterSize(charSize);		//set the text character size
-	texts[key]->setFillColor(color);			//set the text color
-	texts[key]->setString(initialText);			//set the string
-	texts[key]->setPosition(initialPos);		//set the initial position
+	texts[key] = new sf::Text;				//create new text
+	texts[key]->setFont(font);				//set the font
+	texts[key]->setCharacterSize(charSize); //set the text character size
+	texts[key]->setFillColor(color);		//set the text color
+	texts[key]->setString(initialText);		//set the string
+	texts[key]->setPosition(initialPos);	//set the initial position
 }
 
 //initialize world background
@@ -424,7 +425,7 @@ void Game::initEnemy()
 *****************************************update functions*****************************************
 */
 
-//update the game 
+//update the game
 void Game::update()
 {
 	//move player based on input
@@ -456,7 +457,7 @@ void Game::update()
 
 	//update the upgrade animations and despawn timer
 	this->updateUpgrades();
-	
+
 	//update text
 	this->updateGUI();
 }
@@ -518,7 +519,7 @@ void Game::updatePlayer()
 	//gets the direction the player is aiming based off unit circle; ie.) if facing up, then aimDir = -1, 0; this is for consistent bullet speeds
 	//formula for direction: d.x = (m.x - p.x) / sqrt(p.x^2 - m.x^2) + (p.y^2 - m.y^2))
 	playerAimDir = mousePosView - playerPos;
-	playerAimDir = playerAimDir / sqrt(pow(playerAimDir.x, 2) + pow(playerAimDir.y, 2));
+	playerAimDir = playerAimDir / static_cast<float>(sqrt(pow(playerAimDir.x, 2) + pow(playerAimDir.y, 2)));
 
 	//get the angle of the mouse relative to the player; will get the angle in terms of degrees
 	mouseAngle = -atan2(player->getPos().x - mousePosView.x, player->getPos().y - mousePosView.y) * 180.f / pi;
@@ -549,7 +550,7 @@ void Game::updatePlayer()
 		if (playerFirePattern == 0)
 		{
 			sf::FloatRect bulletHitbox(1, 1, 6, 6);
-			sf::Texture* newTexture = this->assets["playerBullet"];
+			sf::Texture *newTexture = this->assets["playerBullet"];
 			int bulletType = 0;
 			float bulletSpeed = 8.f * scale;
 			this->playerBullets.push_back(new Bullet(*newTexture, bulletType, bulletHitbox, playerPos, mouseAngle, playerAimDir, bulletSpeed, scale));
@@ -561,7 +562,7 @@ void Game::updatePlayer()
 			player->setDamage(0.5f + totalPlayerDamageUp);
 			player->setFireRate(5.f - totalPlayerFireRateUp);
 			sf::FloatRect bulletHitbox(1, 1, 6, 6);
-			sf::Texture* newTexture = this->assets["playerBullet"];
+			sf::Texture *newTexture = this->assets["playerBullet"];
 			int bulletType = 0;
 			float bulletSpeed = 8.f * scale;
 
@@ -575,7 +576,7 @@ void Game::updatePlayer()
 			player->setDamage(0.6f + totalPlayerDamageUp);
 			player->setFireRate(10.f - totalPlayerFireRateUp);
 			sf::FloatRect bulletHitbox(1, 1, 6, 6);
-			sf::Texture* newTexture = this->assets["playerBullet"];
+			sf::Texture *newTexture = this->assets["playerBullet"];
 			int bulletType = 0;
 			float bulletSpeed = 8.f * scale;
 
@@ -588,7 +589,7 @@ void Game::updatePlayer()
 			//cluster bullets pierce; do constant damage when in contact with an enemy. so their damage scaling have to be very low to balance the damage. also slower fire rate
 			player->setDamage(0.45f + (totalPlayerDamageUp * 0.5f));
 			player->setFireRate(20.f - totalPlayerFireRateUp);
-			sf::Texture* bulletTexture = this->assets["bigPlayerBullet"];
+			sf::Texture *bulletTexture = this->assets["bigPlayerBullet"];
 			sf::FloatRect bulletHitbox(1, 1, 14, 14);
 			int bulletType = 12;
 
@@ -646,7 +647,7 @@ void Game::updateEnemies()
 	}
 
 	//have the enemy shoot
-	for (auto* enemy : this->enemies)
+	for (auto *enemy : this->enemies)
 	{
 		//enemy 2 and 12 will not be able to go past the 50 offset of the border due to having smaller sprites and moving away from the player
 		if (enemy->getType() == 2 || enemy->getType() == 12)
@@ -660,7 +661,7 @@ void Game::updateEnemies()
 
 		//rotate the enemy towards the player
 		enemy->setRotate(enemyAngle);
-		
+
 		//update enemy fire rate and rotation
 		enemy->update();
 
@@ -672,7 +673,7 @@ void Game::updateEnemies()
 
 		//gets the cos and sin values of the enemy compared to the player;
 		enemyAimDir = playerPos - enemyPos;
-		enemyAimDir = enemyAimDir / sqrt(pow(enemyAimDir.x, 2) + pow(enemyAimDir.y, 2));
+		enemyAimDir = enemyAimDir / static_cast<float>(sqrt(pow(enemyAimDir.x, 2) + pow(enemyAimDir.y, 2)));
 
 		//enemy 1 shoots
 		if (enemy->getType() == 0)
@@ -860,7 +861,7 @@ void Game::updateBullets()
 		else
 			itr++;
 	}
-	
+
 	//if enemy cluster shot detonates, burst it into a circle at the position
 	if (enemyFireCluster)
 	{
@@ -871,7 +872,7 @@ void Game::updateBullets()
 }
 
 //update if an entity has reached the edge of the window so that it can't move outside the edges
-void Game::updateWorldCollision(Entity* entity, float offset)
+void Game::updateWorldCollision(Entity *entity, float offset)
 {
 	//Top world collision
 	if (entity->getPos().y < offset)
@@ -1068,7 +1069,7 @@ void Game::updateUpgradeCollision()
 	{
 		//check if the upgrade collided with the player
 		bool upgradeCollision = (*itr)->getGlobalHitbox().intersects(this->player->getGlobalHitbox());
-		
+
 		//if the upgrade collides with the player; give the player the upgrade
 		if (upgradeCollision)
 		{
@@ -1175,7 +1176,7 @@ void Game::updateGUI()
 }
 
 //upgade the enemies animation
-void Game::updateEnemyAnimation(Enemy* enemy)
+void Game::updateEnemyAnimation(Enemy *enemy)
 {
 	//if the animation is still spawn, update the spawn animation
 	if (!enemy->endOfSpawnAnimation())
@@ -1320,13 +1321,16 @@ void Game::updatePollEvents()
 		{
 		//if the event is closed, close the window
 		case sf::Event::Closed:
-			this->window->close(); 
+			this->window->close();
 			break;
 		//check for keyboard press
 		case sf::Event::KeyPressed:
 			//if the key pressed is escape, close the window
 			if (this->ev.key.code == sf::Keyboard::Escape)
 				this->window->close();
+
+			if (this->ev.key.code == sf::Keyboard::R)
+				this->reset();
 			/*
 			if (this->ev.key.code == sf::Keyboard::Space && gameOver)
 			{
@@ -1346,7 +1350,7 @@ void Game::updatePollEvents()
 void Game::render()
 {
 	//clear the previous render
-	this->window->clear();
+	//this->window->clear();
 
 	//render the background
 	this->spaceBackground->render(*this->window);
@@ -1388,7 +1392,7 @@ void Game::renderMainMenu()
 
 	//move the options text
 	texts["optionsText"]->setPosition(sf::Vector2f((windowWidth - texts["optionsText"]->getGlobalBounds().width) * 0.5f,
-		(windowHeight - texts["optionsText"]->getGlobalBounds().height) * 0.7f));
+												   (windowHeight - texts["optionsText"]->getGlobalBounds().height) * 0.7f));
 	window->draw(*texts["optionsText"]);
 	window->draw(*texts["creditsText"]);
 	interactMainMenu();
@@ -1436,13 +1440,13 @@ void Game::renderGame()
 	}
 
 	//render explosions
-	for (auto& explosion : this->explosions)
+	for (auto &explosion : this->explosions)
 	{
 		explosion->render(*this->window);
 	}
 
 	//render upgrades
-	for (auto& upgrade : this->upgrades)
+	for (auto &upgrade : this->upgrades)
 	{
 		upgrade->render(*this->window);
 	}
@@ -1471,7 +1475,6 @@ void Game::renderGame()
 	}
 }
 
-
 //render the pause menu
 void Game::renderPauseMenu()
 {
@@ -1481,7 +1484,7 @@ void Game::renderPauseMenu()
 	window->draw(*texts["pauseText"]);
 
 	texts["optionsText"]->setPosition(sf::Vector2f((windowWidth - texts["optionsText"]->getGlobalBounds().width) * 0.5f,
-		(windowHeight - texts["optionsText"]->getGlobalBounds().height) * 0.65f));
+												   (windowHeight - texts["optionsText"]->getGlobalBounds().height) * 0.65f));
 	window->draw(*texts["optionsText"]);
 	interactPauseMenu();
 }
@@ -1541,7 +1544,7 @@ void Game::renderGameOverScreens()
 void Game::renderGUI()
 {
 	//render all the text except for the text that appears at certain times
-	for (auto& text : texts)
+	for (auto &text : texts)
 	{
 		if (text.first == "pointText" || text.first == "comboText" || text.first == "playerHpText")
 			window->draw(*text.second);
@@ -1553,7 +1556,8 @@ void Game::renderGUI()
 */
 
 //return if the game window is still open
-const bool Game::running() const {
+const bool Game::running() const
+{
 	return this->window->isOpen();
 }
 
@@ -1583,7 +1587,7 @@ ENEMY TYPES:
 - 3: wave enemy
 - 100: boss enemy
 */
-//spawn 1 basic enemy from the top. 
+//spawn 1 basic enemy from the top.
 void Game::waveOne()
 {
 	//check the elapsed time of the wave
@@ -1604,7 +1608,7 @@ void Game::waveOne()
 	}
 
 	//move the enemies spawned
-	for (auto* e : enemies)
+	for (auto *e : enemies)
 	{
 		if (e->getType() == 0)
 		{
@@ -1647,7 +1651,7 @@ void Game::waveTwo()
 	}
 
 	//enemy one moves in a rectangle
-	for (auto* enemy : enemies)
+	for (auto *enemy : enemies)
 	{
 		if (enemy->getType() == 0)
 		{
@@ -1769,7 +1773,7 @@ void Game::waveFour()
 		}
 	}
 	if (numEnemiesDestroyed >= 4)
-	{	
+	{
 		nextWave();
 	}
 }
@@ -1875,7 +1879,7 @@ void Game::waveSix()
 		spawnCircleEnemyTwo(initialPosition, numEnemies);
 	}
 
-	for (auto* enemy : enemies)
+	for (auto *enemy : enemies)
 	{
 		if (enemy->getType() == 0)
 		{
@@ -1932,7 +1936,7 @@ void Game::waveSeven()
 		spawnEnemyFour(initialPosition, numEnemies);
 	}
 
-	for (auto* enemy : enemies)
+	for (auto *enemy : enemies)
 	{
 		//bounce enemy one moves left right
 		if (enemy->getType() == 10)
@@ -2013,7 +2017,7 @@ void Game::waveEight()
 		spawnBurstEnemyThree(initialPosition, numEnemies);
 	}
 
-	for (auto* enemy : enemies)
+	for (auto *enemy : enemies)
 	{
 		//move basic enemy in rect
 		if (enemy->getType() == 0)
@@ -2085,7 +2089,7 @@ void Game::waveNine()
 		spawnBounceEnemyOne(initialPosition, numEnemies);
 	}
 
-	for (auto* enemy : enemies)
+	for (auto *enemy : enemies)
 	{
 		//move basic enemy in rect
 		if (enemy->getType() == 0 || enemy->getType() == 10)
@@ -2150,7 +2154,7 @@ void Game::waveTen()
 		spawnEnemyTwo(initialPosition, numEnemies);
 	}
 
-	//spawn two bullet bounce enemies circling 
+	//spawn two bullet bounce enemies circling
 	if (spawnTimer >= 11.f && numEnemies == 6)
 	{
 		numEnemies++;
@@ -2170,7 +2174,7 @@ void Game::waveTen()
 		spawnCircleEnemyTwo(initialPosition, numEnemies);
 	}
 
-	for (auto* enemy : enemies)
+	for (auto *enemy : enemies)
 	{
 		//move basic enemy in rect
 		if (enemy->getType() == 10)
@@ -2227,7 +2231,7 @@ void Game::bossWave()
 		spawnTimer = 0.f;
 	}
 
-	for (auto* enemy : enemies)
+	for (auto *enemy : enemies)
 	{
 		//set the boss to enraged if they
 		if (enemy->getType() == 100)
@@ -2261,7 +2265,7 @@ void Game::bossWave()
 }
 
 //move to the next wave
-void Game::nextWave()	
+void Game::nextWave()
 {
 	//reset the spawn timer
 	spawnTimer = 0.f;
@@ -2269,13 +2273,13 @@ void Game::nextWave()
 	//set number of enemies and enemies destroyed to 0
 	numEnemies = 0;
 	numEnemiesDestroyed = 0;
-	
+
 	//increment the current wave
 	currentWave++;
 }
 
 //move an enemy in a rectangle
-void Game::moveInRect(Enemy* enemy)
+void Game::moveInRect(Enemy *enemy)
 {
 	//moves them in a rectangle based on their current positions; have a slight offset so they dont miss the cue to move
 	sf::Vector2f radius(windowWidth - 100.f, windowHeight - 100.f);
@@ -2437,6 +2441,7 @@ void Game::interactPauseMenu()
 			else if (texts["restartLevelText"]->getGlobalBounds().contains(mousePosView))
 			{
 				std::cout << "clicked restart level text\n";
+				reset();
 			}
 			else if (texts["optionsText"]->getGlobalBounds().contains(mousePosView))
 			{
@@ -2475,6 +2480,7 @@ void Game::interactGameOver()
 			else if (texts["restartLevelText"]->getGlobalBounds().contains(mousePosView))
 			{
 				std::cout << "clicked restart level text\n";
+				this->reset();
 			}
 		}
 	}
@@ -2493,10 +2499,10 @@ void Game::spawnEnemyOne(sf::Vector2f initialPosition, unsigned posInWave)
 	//play enemy spawn sound
 	this->sounds["enemySpawn"]->play();
 	this->enemies.push_back(new Enemy(*this->assets["enemyOne"], type, hp, damage, fireRate, movementSpeed, newHitbox, initialPosition, posInWave, scale));
-	
+
 	//set the enemies animation to spawn when spawned
-	Enemy* enemy = enemies.back();
-	sf::Texture* spawnTexture = this->assets["enemyOneSpawn"];
+	Enemy *enemy = enemies.back();
+	sf::Texture *spawnTexture = this->assets["enemyOneSpawn"];
 	enemy->setSpawnAnimation("spawnAnimation", spawnTexture, 4, 0, 32, 32);
 }
 
@@ -2515,8 +2521,8 @@ void Game::spawnBounceEnemyOne(sf::Vector2f initialPosition, unsigned posInWave)
 	this->sounds["enemySpawn"]->play();
 	this->enemies.push_back(new Enemy(*this->assets["bounceEnemyOne"], type, hp, damage, fireRate, movementSpeed, newHitbox, initialPosition, posInWave, scale));
 
-	Enemy* enemy = enemies.back();
-	sf::Texture* spawnTexture = this->assets["bounceEnemyOneSpawn"];
+	Enemy *enemy = enemies.back();
+	sf::Texture *spawnTexture = this->assets["bounceEnemyOneSpawn"];
 	enemy->setSpawnAnimation("spawnAnimation", spawnTexture, 4, 0, 32, 32);
 }
 
@@ -2535,8 +2541,8 @@ void Game::spawnEnemyTwo(sf::Vector2f initialPosition, unsigned posInWave)
 	this->sounds["enemySpawn"]->play();
 	this->enemies.push_back(new Enemy(*this->assets["enemyTwo"], type, hp, damage, fireRate, movementSpeed, newHitbox, initialPosition, posInWave, scale));
 
-	Enemy* enemy = enemies.back();
-	sf::Texture* spawnTexture = this->assets["enemyTwoSpawn"];
+	Enemy *enemy = enemies.back();
+	sf::Texture *spawnTexture = this->assets["enemyTwoSpawn"];
 	enemy->setSpawnAnimation("spawnAnimation", spawnTexture, 4, 0, 32, 32);
 }
 
@@ -2552,8 +2558,8 @@ void Game::spawnCircleEnemyTwo(sf::Vector2f initialPosition, unsigned posInWave)
 	int type = 11;
 	this->enemies.push_back(new Enemy(*this->assets["circleEnemyTwo"], type, hp, damage, fireRate, movementSpeed, newHitbox, initialPosition, posInWave, scale));
 
-	Enemy* enemy = enemies.back();
-	sf::Texture* spawnTexture = this->assets["circleEnemyTwoSpawn"];
+	Enemy *enemy = enemies.back();
+	sf::Texture *spawnTexture = this->assets["circleEnemyTwoSpawn"];
 	enemy->setSpawnAnimation("spawnAnimation", spawnTexture, 4, 0, 32, 32);
 }
 
@@ -2568,9 +2574,8 @@ void Game::spawnEnemyThree(sf::Vector2f initialPosition, unsigned posInWave)
 	int type = 2;
 	this->enemies.push_back(new Enemy(*this->assets["enemyThree"], type, hp, damage, fireRate, movementSpeed, newHitbox, initialPosition, posInWave, scale));
 
-
-	Enemy* enemy = enemies.back();
-	sf::Texture* spawnTexture = this->assets["enemyThreeSpawn"];
+	Enemy *enemy = enemies.back();
+	sf::Texture *spawnTexture = this->assets["enemyThreeSpawn"];
 	enemy->setSpawnAnimation("spawnAnimation", spawnTexture, 4, 0, 32, 32);
 }
 
@@ -2585,8 +2590,8 @@ void Game::spawnBurstEnemyThree(sf::Vector2f initialPosition, unsigned posInWave
 	int type = 12;
 	this->enemies.push_back(new Enemy(*this->assets["burstEnemyThree"], type, hp, damage, fireRate, movementSpeed, newHitbox, initialPosition, posInWave, scale));
 
-	Enemy* enemy = enemies.back();
-	sf::Texture* spawnTexture = this->assets["burstEnemyThreeSpawn"];
+	Enemy *enemy = enemies.back();
+	sf::Texture *spawnTexture = this->assets["burstEnemyThreeSpawn"];
 	enemy->setSpawnAnimation("spawnAnimation", spawnTexture, 4, 0, 32, 32);
 }
 
@@ -2601,8 +2606,8 @@ void Game::spawnEnemyFour(sf::Vector2f initialPosition, unsigned posInWave)
 	int type = 3;
 	this->enemies.push_back(new Enemy(*this->assets["enemyFour"], type, hp, damage, fireRate, movementSpeed, newHitbox, initialPosition, posInWave, scale));
 
-	Enemy* enemy = enemies.back();
-	sf::Texture* spawnTexture = this->assets["enemyFourSpawn"];
+	Enemy *enemy = enemies.back();
+	sf::Texture *spawnTexture = this->assets["enemyFourSpawn"];
 	enemy->setSpawnAnimation("spawnAnimation", spawnTexture, 4, 0, 32, 32);
 }
 
@@ -2618,8 +2623,8 @@ void Game::spawnBoss(sf::Vector2f initialPosition, unsigned posInWave)
 	float size = 1.3f * scale; //boss is larger than other enemies
 	this->enemies.push_back(new Enemy(*this->assets["bossEnemy"], type, hp, damage, fireRate, movementSpeed, newHitbox, initialPosition, posInWave, size));
 
-	Enemy* enemy = enemies.back();
-	sf::Texture* spawnTexture = this->assets["bossEnemySpawn"];
+	Enemy *enemy = enemies.back();
+	sf::Texture *spawnTexture = this->assets["bossEnemySpawn"];
 	enemy->setSpawnAnimation("spawnAnimation", spawnTexture, 12, 0, 64, 64);
 }
 
@@ -2689,7 +2694,7 @@ void Game::enemyOneFirePattern()
 void Game::bounceEnemyOneFirePattern()
 {
 	sf::FloatRect bulletHitbox(1, 1, 6, 6);
-	sf::Texture* bulletTexture = this->assets["bouncingEnemyBullet"];
+	sf::Texture *bulletTexture = this->assets["bouncingEnemyBullet"];
 	int bulletType = 13;
 	float bulletSpeed = 3.f * scale;
 
@@ -2702,7 +2707,7 @@ void Game::bounceEnemyOneFirePattern()
 void Game::enemyTwoFirePattern()
 {
 	sf::FloatRect bulletHitbox(1, 1, 6, 6);
-	sf::Texture* bulletTexture = this->assets["enemyBullet"];
+	sf::Texture *bulletTexture = this->assets["enemyBullet"];
 	int bulletType = 10;
 	float bulletSpeed = 4.f * scale;
 	float spreadAngle = pi / 18.f;
@@ -2717,7 +2722,7 @@ void Game::enemyTwoFirePattern()
 void Game::circleEnemyTwoFirePattern()
 {
 	sf::FloatRect bulletHitbox(1, 1, 6, 6);
-	sf::Texture* bulletTexture = this->assets["enemyBullet"];
+	sf::Texture *bulletTexture = this->assets["enemyBullet"];
 	int bulletType = 10;
 	float bulletSpeed = 2.f * scale;
 
@@ -2730,7 +2735,7 @@ void Game::circleEnemyTwoFirePattern()
 void Game::enemyThreeFirePattern()
 {
 	sf::FloatRect bulletHitbox(6, 0, 4, 16);
-	sf::Texture* bulletTexture = this->assets["longEnemyBullet"];
+	sf::Texture *bulletTexture = this->assets["longEnemyBullet"];
 	int bulletType = 11;
 	float bulletSpeed = 10.f * scale;
 
@@ -2742,7 +2747,7 @@ void Game::enemyThreeFirePattern()
 //burst enemy three's fire pattern; fires a slow burst shot
 void Game::burstEnemyThreeFirePattern()
 {
-	sf::Texture* bulletTexture = this->assets["bigEnemyBullet"];
+	sf::Texture *bulletTexture = this->assets["bigEnemyBullet"];
 	sf::FloatRect bulletHitbox(1, 1, 14, 14);
 	int bulletType = 12;
 	float bulletSpeed = 3.f * scale;
@@ -2753,16 +2758,16 @@ void Game::burstEnemyThreeFirePattern()
 }
 
 //wave enemy four's fire pattern; fires a wave of bullets
-void Game::enemyFourFirePattern(Enemy* enemy)
+void Game::enemyFourFirePattern(Enemy *enemy)
 {
 	enemy->setFireRate(8.f);
 	sf::FloatRect bulletHitbox(1, 1, 6, 6);
-	sf::Texture* bulletTexture = this->assets["enemyBullet"];
+	sf::Texture *bulletTexture = this->assets["enemyBullet"];
 	int bulletType = 10;
 	float bulletSpeed = 3.f * scale;
 	float bulletOffset = pi / 9.f;
 	baseEnemyAimDir = sf::Vector2f(enemyAimDir);
-	
+
 	//keeps track of the bullets fired
 	if (enemy->getBulletCounter() < 7)
 	{
@@ -2780,7 +2785,7 @@ void Game::enemyFourFirePattern(Enemy* enemy)
 }
 
 //boss' fire patterns
-void Game::bossFirePattern(Enemy * enemy)
+void Game::bossFirePattern(Enemy *enemy)
 {
 	//depending on the pattern, do a different attack
 	switch (bossPattern)
@@ -2852,7 +2857,7 @@ void Game::bossFirePattern(Enemy * enemy)
 }
 
 //boss pattern one: fires a circle of bullets around the boss 10 times
-void Game::bossPatternOne(Enemy* enemy)
+void Game::bossPatternOne(Enemy *enemy)
 {
 	//increment the bullet counter
 	enemy->setBulletCounter(enemy->getBulletCounter() + 1);
@@ -2870,7 +2875,7 @@ void Game::bossPatternOne(Enemy* enemy)
 	else
 		enemy->setFireRate(10.f);
 	sf::FloatRect bulletHitbox(1, 1, 6, 6);
-	sf::Texture* bulletTexture = this->assets["enemyBullet"];
+	sf::Texture *bulletTexture = this->assets["enemyBullet"];
 	int bulletType = 10;
 	float bulletSpeed = 3.f * scale;
 
@@ -2880,7 +2885,7 @@ void Game::bossPatternOne(Enemy* enemy)
 }
 
 //fires 5 cluster of bullets that explode into all directions once it reaches the initial positions
-void Game::bossPatternTwo(Enemy* enemy)
+void Game::bossPatternTwo(Enemy *enemy)
 {
 	enemy->setBulletCounter(enemy->getBulletCounter() + 1);
 
@@ -2889,7 +2894,7 @@ void Game::bossPatternTwo(Enemy* enemy)
 	else
 		enemy->setFireRate(50.f);
 
-	sf::Texture* bulletTexture = this->assets["bigEnemyBullet"];
+	sf::Texture *bulletTexture = this->assets["bigEnemyBullet"];
 	sf::FloatRect bulletHitbox(1, 1, 14, 14);
 	int bulletType = 12;
 	float bulletSpeed = 2.5f * scale;
@@ -2899,7 +2904,7 @@ void Game::bossPatternTwo(Enemy* enemy)
 }
 
 //rapid machine gun spread shots targeting the player for twenty shots
-void Game::bossPatternThree(Enemy* enemy)
+void Game::bossPatternThree(Enemy *enemy)
 {
 	enemy->setBulletCounter(enemy->getBulletCounter() + 1);
 
@@ -2909,7 +2914,7 @@ void Game::bossPatternThree(Enemy* enemy)
 		enemy->setFireRate(10.f);
 
 	sf::FloatRect bulletHitbox(1, 1, 6, 6);
-	sf::Texture* bulletTexture = this->assets["enemyBullet"];
+	sf::Texture *bulletTexture = this->assets["enemyBullet"];
 	float bulletSpeed = 3.f * scale;
 	int bulletType = 10;
 
@@ -2918,15 +2923,15 @@ void Game::bossPatternThree(Enemy* enemy)
 }
 
 //shoot a wave of bouncing bullets
-void Game::bossPatternFour(Enemy* enemy)
+void Game::bossPatternFour(Enemy *enemy)
 {
 	if (bossEnraged)
 		enemy->setFireRate(6.4f);
 	else
 		enemy->setFireRate(8.f);
-	
+
 	sf::FloatRect bulletHitbox(1, 1, 6, 6);
-	sf::Texture* bulletTexture = this->assets["bouncingEnemyBullet"];
+	sf::Texture *bulletTexture = this->assets["bouncingEnemyBullet"];
 	int bulletType = 13;
 	float bulletSpeed = 3.f * scale;
 	float bulletOffset = pi / 9.f;
@@ -2937,7 +2942,7 @@ void Game::bossPatternFour(Enemy* enemy)
 }
 
 //fire bullets in a spread
-void Game::fireSpread(const std::string character, sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed, float spreadDegree)
+void Game::fireSpread(const std::string character, sf::Texture *bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed, float spreadDegree)
 {
 	//if the player is firing
 	if (character == "player")
@@ -2949,15 +2954,13 @@ void Game::fireSpread(const std::string character, sf::Texture* bulletTexture, s
 		//shoots a bullet at the spread degree angle (trigonomic identity)
 		newPlayerAimDir = sf::Vector2f(
 			playerAimDir.x * (cos(spreadDegree)) - playerAimDir.y * (sin(spreadDegree)),
-			playerAimDir.y * (cos(spreadDegree)) + playerAimDir.x * (sin(spreadDegree))
-		);
+			playerAimDir.y * (cos(spreadDegree)) + playerAimDir.x * (sin(spreadDegree)));
 		this->playerBullets.push_back(new Bullet(*bulletTexture, bulletType, bulletHitbox, playerPos, mouseAngle, newPlayerAimDir, bulletSpeed, scale));
 
 		//shoots a bullet at the spread degree angle
 		newPlayerAimDir = sf::Vector2f(
 			playerAimDir.x * (cos(spreadDegree)) + playerAimDir.y * (sin(spreadDegree)),
-			playerAimDir.y * (cos(spreadDegree)) - playerAimDir.x * (sin(spreadDegree))
-		);
+			playerAimDir.y * (cos(spreadDegree)) - playerAimDir.x * (sin(spreadDegree)));
 		this->playerBullets.push_back(new Bullet(*bulletTexture, bulletType, bulletHitbox, playerPos, mouseAngle, newPlayerAimDir, bulletSpeed, scale));
 	}
 	else
@@ -2967,20 +2970,18 @@ void Game::fireSpread(const std::string character, sf::Texture* bulletTexture, s
 
 		newEnemyAimDir = sf::Vector2f(
 			enemyAimDir.x * (cos(spreadDegree)) - enemyAimDir.y * (sin(spreadDegree)),
-			enemyAimDir.y * (cos(spreadDegree)) + enemyAimDir.x * (sin(spreadDegree))
-		);
+			enemyAimDir.y * (cos(spreadDegree)) + enemyAimDir.x * (sin(spreadDegree)));
 		this->enemyBullets.push_back(new Bullet(*bulletTexture, bulletType, bulletHitbox, enemyPos, enemyAngle, newEnemyAimDir, bulletSpeed, scale));
 
 		newEnemyAimDir = sf::Vector2f(
 			enemyAimDir.x * (cos(spreadDegree)) + enemyAimDir.y * (sin(spreadDegree)),
-			enemyAimDir.y * (cos(spreadDegree)) - enemyAimDir.x * (sin(spreadDegree))
-		);
+			enemyAimDir.y * (cos(spreadDegree)) - enemyAimDir.x * (sin(spreadDegree)));
 		this->enemyBullets.push_back(new Bullet(*bulletTexture, bulletType, bulletHitbox, enemyPos, enemyAngle, newEnemyAimDir, bulletSpeed, scale));
 	}
 }
 
 //fire bullets in a wave
-void Game::fireWave(sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed, float bulletOffset, sf::Vector2f baseAimDir, Enemy* enemy)
+void Game::fireWave(sf::Texture *bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed, float bulletOffset, sf::Vector2f baseAimDir, Enemy *enemy)
 {
 	//increment the bullet counter
 	enemy->setBulletCounter(enemy->getBulletCounter() + 1);
@@ -3000,22 +3001,19 @@ void Game::fireWave(sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int 
 		//shoot at degrees * 3
 		enemyAimDir = sf::Vector2f(
 			baseEnemyAimDir.x * (cos(bulletOffset * 3)) + baseEnemyAimDir.y * (sin(bulletOffset * 3)),
-			baseEnemyAimDir.y * (cos(bulletOffset * 3)) - baseEnemyAimDir.x * (sin(bulletOffset * 3))
-		);
+			baseEnemyAimDir.y * (cos(bulletOffset * 3)) - baseEnemyAimDir.x * (sin(bulletOffset * 3)));
 		break;
 	case 2:
 		//shoot at degrees * 2
 		enemyAimDir = sf::Vector2f(
 			baseEnemyAimDir.x * (cos(bulletOffset * 2)) + baseEnemyAimDir.y * (sin(bulletOffset * 2)),
-			baseEnemyAimDir.y * (cos(bulletOffset * 2)) - baseEnemyAimDir.x * (sin(bulletOffset * 2))
-		);
+			baseEnemyAimDir.y * (cos(bulletOffset * 2)) - baseEnemyAimDir.x * (sin(bulletOffset * 2)));
 		break;
 	case 3:
 		//shoot at degrees * 1
 		enemyAimDir = sf::Vector2f(
 			baseEnemyAimDir.x * (cos(bulletOffset)) + baseEnemyAimDir.y * (sin(bulletOffset)),
-			baseEnemyAimDir.y * (cos(bulletOffset)) - baseEnemyAimDir.x * (sin(bulletOffset))
-		);
+			baseEnemyAimDir.y * (cos(bulletOffset)) - baseEnemyAimDir.x * (sin(bulletOffset)));
 		break;
 	case 4:
 		//shoot at the initial aim direction
@@ -3025,22 +3023,19 @@ void Game::fireWave(sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int 
 		//shoot at degrees * 1 the other way
 		enemyAimDir = sf::Vector2f(
 			baseEnemyAimDir.x * (cos(bulletOffset)) - baseEnemyAimDir.y * (sin(bulletOffset)),
-			baseEnemyAimDir.y * (cos(bulletOffset)) + baseEnemyAimDir.x * (sin(bulletOffset))
-		);
+			baseEnemyAimDir.y * (cos(bulletOffset)) + baseEnemyAimDir.x * (sin(bulletOffset)));
 		break;
 	case 6:
 		//degrees * 2
 		enemyAimDir = sf::Vector2f(
 			baseEnemyAimDir.x * (cos(bulletOffset * 2)) - baseEnemyAimDir.y * (sin(bulletOffset * 2)),
-			baseEnemyAimDir.y * (cos(bulletOffset * 2)) + baseEnemyAimDir.x * (sin(bulletOffset * 2))
-		);
+			baseEnemyAimDir.y * (cos(bulletOffset * 2)) + baseEnemyAimDir.x * (sin(bulletOffset * 2)));
 		break;
 	case 7:
 		//degrees * 3
 		enemyAimDir = sf::Vector2f(
 			baseEnemyAimDir.x * (cos(bulletOffset * 3)) - baseEnemyAimDir.y * (sin(bulletOffset * 3)),
-			baseEnemyAimDir.y * (cos(bulletOffset * 3)) + baseEnemyAimDir.x * (sin(bulletOffset * 3))
-		);
+			baseEnemyAimDir.y * (cos(bulletOffset * 3)) + baseEnemyAimDir.x * (sin(bulletOffset * 3)));
 		break;
 	//once the wave is done, bullet counter is reset
 	default:
@@ -3052,7 +3047,7 @@ void Game::fireWave(sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int 
 }
 
 //fire bullets in a circle
-void Game::fireInCircle(const std::string character, sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed, sf::Vector2f centerPos, float offset)
+void Game::fireInCircle(const std::string character, sf::Texture *bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed, sf::Vector2f centerPos, float offset)
 {
 	//initial degree is the set offset
 	float degree = offset;
@@ -3073,32 +3068,32 @@ void Game::fireInCircle(const std::string character, sf::Texture* bulletTexture,
 }
 
 //fire bullets as a cluster
-void Game::fireClusterShot(const std::string character, sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed)
+void Game::fireClusterShot(const std::string character, sf::Texture *bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed)
 {
 	if (character == "player")
 	{
 		sf::Vector2f newAimPos(mousePosView.x - playerPos.x, mousePosView.y - playerPos.y);
 		playerBullets.push_back(new Bullet(*bulletTexture, bulletType, bulletHitbox, playerPos, mouseAngle, playerAimDir, bulletSpeed, scale));
 		//playerBullets.push_back(new Bullet(*bulletTexture, bulletType, bulletHitbox, playerPos, mouseAngle, playerAimDir, bulletSpeed, scale));
-		Bullet* bullet = playerBullets.back();
+		Bullet *bullet = playerBullets.back();
 		bullet->setBasePos(mousePosView);
 	}
 	else
 	{
 		enemyBullets.push_back(new Bullet(*bulletTexture, bulletType, bulletHitbox, enemyPos, enemyAngle, enemyAimDir, bulletSpeed, scale));
-		Bullet* bullet = enemyBullets.back();
+		Bullet *bullet = enemyBullets.back();
 		bullet->setBasePos(playerPos);
 	}
 }
 
 //burst the cluster shot
-void Game::burstClusterShot(const std::string character, sf::Vector2f burstPos, sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed)
+void Game::burstClusterShot(const std::string character, sf::Vector2f burstPos, sf::Texture *bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed)
 {
 	fireInCircle(character, bulletTexture, bulletHitbox, bulletType, bulletSpeed, burstPos, 0);
 }
 
 //fires double bullets
-void Game::fireDoubleBullets(const std::string character, sf::Texture * bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed)
+void Game::fireDoubleBullets(const std::string character, sf::Texture *bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed)
 {
 	//will need to get the angles from the two sides of the player;
 	sf::Vector2f leftPos, rightPos;
@@ -3157,7 +3152,7 @@ void Game::fireDoubleBullets(const std::string character, sf::Texture * bulletTe
 }
 
 //bounces a bullet
-void Game::bounceBullet(Bullet * bullet)
+void Game::bounceBullet(Bullet *bullet)
 {
 	//top wall
 	if (bullet->getPos().y < 0.f)
@@ -3187,10 +3182,10 @@ void Game::bounceBullet(Bullet * bullet)
 }
 
 //power ups: damage up, hp up, fire rate up; other power ups: double ray, spread shot, sniper (?)
-void Game::dropPowerUp(Enemy* enemy)
+void Game::dropPowerUp(Enemy *enemy)
 {
 	int dmgUpChance, hpUpChance, fireRateUpChance, doubleBulletUpChance, spreadBulletUpChance, burstBulletUpChance, dropType;
-	sf::Texture* newTexture = nullptr;
+	sf::Texture *newTexture = nullptr;
 
 	//random chance of an enemy dropping a power up
 	int randChance = rand() % 100 + 1;
@@ -3233,7 +3228,7 @@ void Game::dropPowerUp(Enemy* enemy)
 		spreadBulletUpChance = 18 + doubleBulletUpChance;
 		burstBulletUpChance = 8 + spreadBulletUpChance;
 	}
-	
+
 	//enemy three(s) power up drops
 	else if (enemy->getType() == 2 || enemy->getType() == 12)
 	{
@@ -3351,9 +3346,10 @@ void Game::printScores(unsigned int p)
 		}
 	}
 
-	//print and wirte the new score array to file 
+	//print and wirte the new score array to file
 	std::stringstream ss;
-	ss << "High Scores" << "\n";
+	ss << "High Scores"
+	   << "\n";
 
 	std::ofstream fout(highScoreFileName);
 	if (!fout)
@@ -3370,7 +3366,7 @@ void Game::printScores(unsigned int p)
 	fout.close();
 	texts["scoreText"]->setString(ss.str());
 	texts["scoreText"]->setPosition(sf::Vector2f((windowWidth - texts["scoreText"]->getGlobalBounds().width) * 0.5f,
-		(windowHeight - texts["scoreText"]->getGlobalBounds().height) * 0.4f));
+												 (windowHeight - texts["scoreText"]->getGlobalBounds().height) * 0.4f));
 }
 
 void Game::playBGM()
@@ -3439,9 +3435,9 @@ void Game::run()
 					playBossBGM();
 				}
 			}
-			//upate the pause timer 
+			//upate the pause timer
 			this->updatePause();
-			
+
 			//if the player is not dead, game is not paused, and boss is not destroyed, update the game
 			if (!gameOver && !pause && !bossDestroyed)
 				update();
@@ -3453,8 +3449,90 @@ void Game::run()
 				if (bossBGM.getStatus() == sf::Music::Playing)
 					this->bossBGM.stop();
 			}
+ 			if (resetVal)
+				reset2();
 		}
 		//render the game
 		render();
 	}
+}
+
+void Game::reset()
+{
+
+	resetVal = true;
+}
+
+void Game::reset2()
+{
+	delete this->window;
+
+	delete this->player;
+
+	//delete textures
+	for (auto& texture : this->assets)
+	{
+		delete texture.second;
+	}
+
+	//delete texts
+	for (auto& text : this->texts)
+	{
+		delete text.second;
+	}
+
+	//delete player bullets
+	for (auto* bullet : this->playerBullets)
+	{
+		delete bullet;
+	}
+
+	//delete enemy bullets
+	for (auto* bullet : this->enemyBullets)
+	{
+		delete bullet;
+	}
+
+	//delete enemies
+	for (auto* enemy : this->enemies)
+	{
+		delete enemy;
+	}
+
+	//delete all the explosion animations
+	for (auto* explosion : this->explosions)
+	{
+		delete explosion;
+	}
+
+	//delete all the upgrades
+	for (auto* upgrade : this->upgrades)
+	{
+		delete upgrade;
+	}
+
+	//delete all the sounds
+	for (auto& s : this->sounds)
+	{
+		delete s.second;
+	}
+	delete spaceBackground;
+
+	//initialize the game variables
+	this->initVariables();
+
+	//initialize assets
+	this->initAssets();
+
+	//initialize the audio
+	this->initAudio();
+
+	this->initWindow();
+
+	//initialize the world sprite
+	this->initWorld();
+
+	//initialize the GUI
+	this->initGUI();
+
 }
