@@ -169,7 +169,7 @@ this->sounds["bigEnemyBullet"]->play();
 
 // ******************** update 3 ******************** //
 
-// game.h
+// For game.h
 #include "SliderSFML.h"
 
 float musicVolume;
@@ -177,7 +177,7 @@ float soundVolume;
 void setMusicVolume(float);
 void setSoundVolume(float);
 
-// game.cpp
+// For game.cpp
 
 // In initAudio
 musicVolume = 100;
@@ -201,7 +201,7 @@ void Game::setSoundVolume(float value)
 }
 
 // Slider
-// For initialization.
+// For initialization
 SliderSFML musicSlider(x1, y1);
 SliderSFML soundSlider(x2, y2);
 // 0 -> Min volume / 100 -> Max volume
