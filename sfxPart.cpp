@@ -167,18 +167,53 @@ addSound("bigEnemyBullet", "Audio/bigEnemyBullet.wav");
 //play sound when enemy shoots
 this->sounds["bigEnemyBullet"]->play();
 
-// In initAudio: After this->sounds["emergency"]->setLoop(true);
-this->normalBGM.setVolume();
-this->bossBGM.setVolume();
-this->sounds["playerBullet"]->setVolume();
-this->sounds["enemyBullet"]->setVolume();
-this->sounds["longEnemyBullet"]->setVolume();
-this->sounds["bigEnemyBullet"]->setVolume();
-this->sounds["enemySpawn"]->setVolume();
-this->sounds["playerHit"]->setVolume();
-this->sounds["enemyHit"]->setVolume();
-this->sounds["explosion"]->setVolume();
-this->sounds["itemDrop"]->setVolume();
-this->sounds["itemPickUp"]->setVolume();
-this->sounds["emergency"]->setVolume();
-this->sounds["gameover"]->setVolume();
+// ******************** update 3 ******************** //
+
+// game.h
+#include "SliderSFML.h"
+
+float musicVolume;
+float soundVolume;
+void setMusicVolume(float);
+void setSoundVolume(float);
+
+// game.cpp
+
+// In initAudio
+musicVolume = 100;
+soundVolume = 100;
+
+// Somewhere in game.cpp (Update function?)
+void Game::setMusicVolume(float value)
+{
+    musicVolume = value;
+    normalBGM.setVolume(musicVolume);
+    bossBGM.setVolume(musicVolume);
+}
+
+void Game::setSoundVolume(float value)
+{
+    soundVolume = value;
+    for (auto &s : this->sounds)
+    {
+        s.second->setVolume(soundVolume);
+    }
+}
+
+// Slider
+// For initialization.
+SliderSFML musicSlider(x1, y1);
+SliderSFML soundSlider(x2, y2);
+// 0 -> Min volume / 100 -> Max volume
+musicSlider.create(0, 100);
+soundSlider.create(0, 100);
+
+// For update
+musicSlider.setSliderValue(musicVolume);
+soundSlider.setSliderValue(soundVolume);
+musicSlider.draw(*(this->window));
+soundSlider.draw(*(this->window));
+musicVolume = musicSlider.getSliderValue();
+soundVolume = soundSlider.getSliderValue();
+setMusicVolume(musicVolume);
+setSoundVolume(soundVolume);
