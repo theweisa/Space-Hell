@@ -4,7 +4,7 @@
 int main()
 {
 	srand(static_cast<unsigned>(time(0)));
-	Game game;
+	SpaceHell game;
 	game.run();
 	return 0;
 }
