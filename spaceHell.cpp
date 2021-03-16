@@ -8,84 +8,86 @@
 SpaceHell::SpaceHell()
 {
 	//initialize debug mode outside of the game
-	this->debugMode = false;
+	debugMode = false;
 
 	//initialize window as nullptr
-	this->window = nullptr;
+	window = nullptr;
 
 	//initialize the game variables
-	this->initVariables();
+	initVariables();
 
 	//initialize the window
-	this->initWindow();
+	initWindow();
 
 	//initialize assets
-	this->initAssets();
+	initAssets();
 
 	//initialize the audio
-	this->initAudio();
+	initAudio();
 
 	//initialize the world sprite
-	this->initWorld();
+	initWorld();
 
 	//initialize the GUI
-	this->initGUI();
+	initGUI();
 }
 
 //destructor
 SpaceHell::~SpaceHell()
 {
 	//delete the window
-	delete this->window;
+	delete window;
 
-	//delete player if not already deleted
-	if (!playerDestroyed)
-		delete this->player;
+	//delete player if the game has started and player hasnt been destroyed
+	if (gameStarted && !playerDestroyed)
+	{
+		delete player;
+	}
 
 	//delete textures
-	for (auto& texture : this->assets)
+	for (auto& texture : assets)
 	{
 		delete texture.second;
 	}
 
 	//delete texts
-	for (auto& text : this->texts)
+	for (auto& text : texts)
 	{
 		delete text.second;
 	}
 
 	//delete player bullets
-	for (auto* bullet : this->playerBullets)
+	for (auto* bullet : playerBullets)
 	{
 		delete bullet;
 	}
 
 	//delete enemy bullets
-	for (auto* bullet : this->enemyBullets)
+	for (auto* bullet : enemyBullets)
 	{
 		delete bullet;
 	}
 
 	//delete enemies
-	for (auto* enemy : this->enemies)
+	for (auto* enemy : enemies)
 	{
 		delete enemy;
 	}
 
 	//delete all the explosion animations
-	for (auto* explosion : this->explosions)
+	for (auto* explosion : explosions)
 	{
 		delete explosion;
 	}
 
 	//delete all the upgrades
-	for (auto* upgrade : this->upgrades)
+	for (auto* upgrade : upgrades)
 	{
 		delete upgrade;
 	}
 
 	//delete all the sounds
-	for (auto& s : this->sounds)
+	for (auto& s : sounds)
 	{
 		delete s.second;
 	}
@@ -101,44 +103,39 @@ SpaceHell::~SpaceHell()
 //initialize game variables
 void SpaceHell::initVariables()
 {
-	this->printDebugCommands = false;
+	//initiailize variables
+	printDebugCommands = false;
+	startMusic = false;
+	startBossMusic = false;
+	gameStarted = false;
 
-	this->startMusic = false;
+	gameOver = false;
+	pause = false;
+	select = -1;		//for moving past the game over screen
 
-	this->startBossMusic = false;
-
-	this->gameStarted = false;
-
-	this->displayCredits = false;
-
-	this->displayOptions = false;
-
-	this->displayVolume = false;
-
-	this->displayPause = false;
-
-	this->gameOver = false;
-
-	this->pause = false;
-	this->select = -1;		//for moving past the game over screen
+	//initialize display booleans
+	displayCredits = false;
+	displayOptions = false;
+	displayVolume = false;
+	displayPause = false;
 
 	//initialize the pause buffer; one second
-	this->pauseBufferMax = 0.5f;
-	this->pauseBuffer = pauseBufferMax;
-	this->selectBufferMax = 0.1f;
-	this->selectBuffer = selectBufferMax;
+	pauseBufferMax = 0.5f;
+	pauseBuffer = pauseBufferMax;
+	selectBufferMax = 0.1f;
+	selectBuffer = selectBufferMax;
 
 	//initialize points to 0
-	this->points = 0;
+	points = 0;
 
 	//initialize combo to 1; multiplies the score you gain
-	this->combo = 1;
+	combo = 1;
 
 	//set the first wave
-	this->currentWave = 1;
+	currentWave = 1;
 
 	//delta time is 0
-	this->deltaTime = 0.f;
+	deltaTime = 0.f;
 }
 
 //initialize window
@@ -153,9 +150,9 @@ void SpaceHell::initWindow()
 	float baseWidth = 640.f;
 
 	//set the resolution of the gam
-	this->videoMode.height = 768;
-	this->videoMode.width = 1024;
-	this->window = new sf::RenderWindow(this->videoMode, "Space Hell", sf::Style::Titlebar | sf::Style::Close | sf::Style::Resize); //dynamically allocate mem for window
+	videoMode.height = 768;
+	videoMode.width = 1024;
+	window = new sf::RenderWindow(videoMode, "Space Hell", sf::Style::Titlebar | sf::Style::Close | sf::Style::Resize); //dynamically allocate mem for window
 
 	//height of the window
 	windowHeight = static_cast<float>(window->getSize().y);
@@ -167,7 +164,7 @@ void SpaceHell::initWindow()
 	scale = videoMode.height / baseHeight;
 
 	//set the max frame rate
-	this->window->setFramerateLimit(60);
+	window->setFramerateLimit(60);
 }
 
 //initialize the textures and animations; assets
@@ -226,8 +223,8 @@ void SpaceHell::initAssets()
 //small function to add an asset to the assets map
 void SpaceHell::addAsset(const std::string key, const std::string fileName)
 {
-	this->assets[key] = new sf::Texture();
-	if (!this->assets[key]->loadFromFile(fileName))
+	assets[key] = new sf::Texture();
+	if (!assets[key]->loadFromFile(fileName))
 	{
 		std::cout << "ERROR: failed to load " << fileName << std::endl;
 	}
@@ -239,22 +236,9 @@ void SpaceHell::initAudio()
 	musicVolume = 100;
 	soundVolume = 100;
 
-	if (!this->normalBGM.openFromFile("Audio/bgm.wav"))
-	{
-		std::cout << "ERROR: failed to load bgm.wav" << std::endl;
-	}
-	if (!this->bossBGM.openFromFile("Audio/bossMusic.wav"))
-	{
-		std::cout << "ERROR: failed to load bossMusic.wav" << std::endl;
-	}
-
-	//initialize boss and normal bgm loop and volume
-	this->bossBGM.setLoop(true);
-	this->bossBGM.setVolume(100.f);
-	this->normalBGM.setLoop(true);
-	this->normalBGM.setVolume(100.f);
-
 	//audio from https://mixkit.co/
+	addSound("normalBGM", "Audio/bgm.wav", 100.f);
+	addSound("bossBGM", "Audio/bossMusic.wav", 100.f);
 	addSound("playerBullet", "Audio/playerBullet.wav", 75.f);
 	addSound("enemyBullet", "Audio/enemyBullet.wav", 100.f);
 	addSound("longEnemyBullet", "Audio/longEnemyBullet.wav", 100.f);
@@ -267,30 +251,45 @@ void SpaceHell::initAudio()
 	addSound("emergency", "Audio/emergency.wav", 100.f);
 	addSound("gameover", "Audio/gameover.wav", 100.f);
 
-	this->sounds["emergency"]->setLoop(true);
+	if (!normalBGM.openFromFile("Audio/bgm.wav"))
+	{
+		std::cout << "ERROR: failed to load bgm.wav" << std::endl;
+	}
+	if (!bossBGM.openFromFile("Audio/bossMusic.wav"))
+	{
+		std::cout << "ERROR: failed to load bossMusic.wav" << std::endl;
+	}
+
+	//initialize boss and normal bgm loop and volume
+	bossBGM.setLoop(true);
+	bossBGM.setVolume(100.f);
+	normalBGM.setLoop(true);
+	normalBGM.setVolume(100.f);
+
+	sounds["emergency"]->setLoop(true);
 }
 
 //add sounds
 void SpaceHell::addSound(const std::string key, const std::string fileName, float volume)
 {
-	this->soundBuffers[key] = new sf::SoundBuffer();
-	if (this->soundBuffers[key]->loadFromFile(fileName))
+	soundBuffers[key] = new sf::SoundBuffer();
+	if (soundBuffers[key]->loadFromFile(fileName))
 	{
-		this->sounds[key] = new sf::Sound();
-		this->sounds[key]->setBuffer(*(this->soundBuffers[key]));
+		sounds[key] = new sf::Sound();
+		sounds[key]->setBuffer(*(soundBuffers[key]));
 	}
 	else
 		std::cout << "ERROR: failed to load " << fileName << std::endl;
-	this->sounds[key]->setVolume(volume);
+	sounds[key]->setVolume(volume);
 }
 
 //initialize the variables of the game starting; player and enemy variables
 void SpaceHell::startGame()
 {
 	//initialize player and player variables
-	this->initPlayer();
+	initPlayer();
 	//initialize the enemy variables
-	this->initEnemy();
+	initEnemy();
 
 	//debug mode sets the first wave to 0, or the debug mode wave
 	if (debugMode)
@@ -1051,11 +1050,16 @@ void SpaceHell::updateEnemyCollision()
 					//damage calculation: base damage + ((base damage / 5) * numOfDamageUp)
 					float clusterDamage = 0.2f + (0.2f * 0.2f * (totalPlayerDamageUp * 5));
 					enemy->takeDamage(clusterDamage);
+
+					//gain less points if bullet type 12
+					points += 1 * combo;
 				}
 				//enemy takes damage equal to player damage
 				else
 				{
 					enemy->takeDamage(player->getDamage());
+					//gain points for hitting the enemy;
+					points += 10 * combo;
 				}
 
 				//print enemy hp for testing purposes
@@ -1066,9 +1070,6 @@ void SpaceHell::updateEnemyCollision()
 
 				//set them as damaged
 				enemy->setIsDamaged(true);
-
-				//gain points for hitting the enemy;
-				points += 10 * combo;
 
 				//enemy is set to destroyed if hp bar is below 0
 				if (enemy->getHp() <= 0.f)
@@ -1087,8 +1088,8 @@ void SpaceHell::updateEnemyCollision()
 				if (bullet->getType() != 12)
 				{
 					//delete the bullet after it hits the enemy
-					delete this->playerBullets[bulletVectPos];
-					this->playerBullets.erase(this->playerBullets.begin() + bulletVectPos);
+					delete playerBullets[bulletVectPos];
+					playerBullets.erase(playerBullets.begin() + bulletVectPos);
 					--bulletVectPos;
 				}
 			}
