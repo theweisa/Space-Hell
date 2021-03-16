@@ -12,11 +12,11 @@ Upgrade::Upgrade(sf::Texture* newTexture, Vector2f position, float despawnTimerM
 	sprite.scale(2.f * scale, 2.f * scale);
 	this->setHitbox(sf::FloatRect(0, 0, 8, 8));
 
-	this->deltaTime = currentTime;
+	deltaTime = currentTime;
 
 	//set the despawn timers
-	this->despawnTimer = 0.f;
-	this->despawnTimerMax = despawnTimerMax;
+	despawnTimer = 0.f;
+	despawnTimerMax = despawnTimerMax;
 
 	//1 is damage up, 2 is fire rate up, 3 is hp up, 4 is double bullet, 5 is spread shot, 6 is cluster shot
 	this->type = type;
@@ -29,8 +29,8 @@ Upgrade::Upgrade(sf::Texture* newTexture, Vector2f position, float despawnTimerM
 //mutators
 void Upgrade::setTime(float & deltaTime)
 {
-	this->despawnTimer += deltaTime;
-	this->deltaTime = deltaTime;
+	despawnTimer += deltaTime;
+	deltaTime = deltaTime;
 }
 
 //accessors
@@ -47,7 +47,7 @@ const int Upgrade::getType() const
 //functions
 bool Upgrade::isDespawned()
 {
-	return this->despawnTimer >= this->despawnTimerMax;
+	return despawnTimer >= despawnTimerMax;
 }
 
 void Upgrade::update()

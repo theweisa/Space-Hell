@@ -6,27 +6,27 @@ namespace ent
 	Enemy::Enemy(sf::Texture& newTexture, int newType, float newHp, float damage, float newFireRate, float newMovementSpeed, sf::FloatRect& newHitbox, sf::Vector2f initialPosition, unsigned posInWave, float scale)
 	{
 		//initialize the sprite texture
-		this->sprite.setTexture(newTexture);
+		sprite.setTexture(newTexture);
 		//set the sprite origin to the center of the texture
-		this->sprite.setOrigin(sf::Vector2f(sprite.getTexture()->getSize().x * 0.5f, sprite.getTexture()->getSize().x * 0.5f));
-		this->sprite.scale(1.3f * scale, 1.3f * scale);
-		this->sprite.setPosition(initialPosition);
+		sprite.setOrigin(sf::Vector2f(sprite.getTexture()->getSize().x * 0.5f, sprite.getTexture()->getSize().x * 0.5f));
+		sprite.scale(1.3f * scale, 1.3f * scale);
+		sprite.setPosition(initialPosition);
 
-		this->type = newType;
-		this->hp = newHp;
-		this->hpMax = newHp;
+		type = newType;
+		hp = newHp;
+		hpMax = newHp;
 
-		this->fireRate = 0;
-		this->maxFireRate = newFireRate;
-		this->bulletCounter = 0;
+		fireRate = 0;
+		maxFireRate = newFireRate;
+		bulletCounter = 0;
 
-		this->movementSpeed = newMovementSpeed;
+		movementSpeed = newMovementSpeed;
 		this->setHitbox(newHitbox);
-		this->posInWave = posInWave;
+		posInWave = posInWave;
 
-		this->destroyed = false;
-		this->isDamaged = false;
-		this->damageTimer = 0.f;
+		destroyed = false;
+		isDamaged = false;
+		damageTimer = 0.f;
 	}
 
 	//accessors
@@ -47,7 +47,7 @@ namespace ent
 
 	const sf::Vector2f Enemy::getEnemyToPlayerDir() const
 	{
-		return this->enemyToPlayerDir;
+		return enemyToPlayerDir;
 	}
 
 	const int Enemy::getBulletCounter() const
@@ -73,7 +73,7 @@ namespace ent
 
 	void Enemy::setEnemyToPlayerDir(sf::Vector2f enemyToPlayerDir)
 	{
-		this->enemyToPlayerDir = enemyToPlayerDir;
+		enemyToPlayerDir = enemyToPlayerDir;
 	}
 
 	void Enemy::setBulletCounter(int newBulletCounter)

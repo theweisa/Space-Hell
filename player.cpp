@@ -5,22 +5,22 @@ namespace ent
 	//initialize variables
 	void Player::initVariables(float scale)
 	{
-		this->movementSpeed = 3.f * scale;
-		this->maxFireRate = 5.f;
-		this->fireRate = this->maxFireRate;
+		movementSpeed = 3.f * scale;
+		maxFireRate = 5.f;
+		fireRate = maxFireRate;
 
-		this->hpMax = 10.f;
-		this->hp = 5.f;
-		this->damage = 1.f;
+		hpMax = 10.f;
+		hp = 5.f;
+		damage = 1.f;
 
-		this->rotateAngle = 0.f;
+		rotateAngle = 0.f;
 	}
 
 	//initialize texture
 	void Player::initTexture()
 	{
 		//load a texture from file
-		if (!this->texture.loadFromFile("Textures/player_ship.png"))
+		if (!texture.loadFromFile("Textures/player_ship.png"))
 			std::cout << "ERROR: could not open texture. " << std::endl;
 	}
 
@@ -28,19 +28,19 @@ namespace ent
 	void Player::initSprite(sf::Vector2f initialPos, float scale)
 	{
 		//load a sprite from file
-		this->sprite.setTexture(this->texture);
+		sprite.setTexture(this->texture);
 
-		this->sprite.setOrigin(sf::Vector2f(sprite.getTexture()->getSize().x * 0.5f, sprite.getTexture()->getSize().x * 0.5f));
+		sprite.setOrigin(sf::Vector2f(sprite.getTexture()->getSize().x * 0.5f, sprite.getTexture()->getSize().x * 0.5f));
 		//resize the sprite
-		this->sprite.scale(1.1f * scale, 1.1f * scale);
+		sprite.scale(1.1f * scale, 1.1f * scale);
 		//set the initialize position of the sprite to these coords
-		this->sprite.setPosition(initialPos);
+		sprite.setPosition(initialPos);
 	}
 
 	//initialize hitbox
 	void Player::initHitbox()
 	{
-		this->hitbox = sf::FloatRect(26, 20, 12, 24);
+		hitbox = sf::FloatRect(26, 20, 12, 24);
 	}
 
 	/*

@@ -17,10 +17,10 @@ Animation::Animation(sf::Sprite& newSprite, sf::Texture& newSpriteSheet, float n
 	endRect = sf::IntRect(endFramesX * width, endFramesY * height, width, height);
 
 	//set the animations sprite to the sprite sheet
-	this->sprite.setTexture(spriteSheet, true);
+	sprite.setTexture(spriteSheet, true);
 
 	//set the initial frame of the sprite sheet
-	this->sprite.setTextureRect(startRect);
+	sprite.setTextureRect(startRect);
 }
 
 //play an animation
@@ -57,7 +57,7 @@ void Animation::play(const float & deltaTime)
 		}
 
 		//set the sprites texture to the current rect
-		this->sprite.setTextureRect(currentRect);
+		sprite.setTextureRect(currentRect);
 	}
 }
 
