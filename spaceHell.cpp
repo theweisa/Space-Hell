@@ -38,8 +38,9 @@ Game::~Game()
 	//delete the window
 	delete this->window;
 
-	//delete the player
-	delete this->player;
+	//delete player if not already deleted
+	if (!playerDestroyed)
+		delete this->player;
 
 	//delete textures
 	for (auto& texture : this->assets)
