@@ -427,7 +427,7 @@ void SpaceHell::addText(const std::string key, unsigned charSize, sf::Color colo
 //initialize world background
 void SpaceHell::initWorld()
 {
-	this->spaceBackground = new Background(assets["spaceBackground"], sf::Vector2f(windowWidth * 0.5f, windowHeight * 0.5f), scale);
+	spaceBackground = new Background(assets["spaceBackground"], sf::Vector2f(windowWidth * 0.5f, windowHeight * 0.5f), scale);
 }
 
 //initialize player variables
@@ -438,7 +438,7 @@ void SpaceHell::initPlayer()
 	sf::Vector2f initialPos(windowWidth * 0.5f, windowHeight - 100.f);
 
 	//spawn the player
-	this->player = new Player(initialPos, scale);
+	player = new Player(initialPos, scale);
 
 	/*
 	FIRE PATTERNS:
@@ -459,8 +459,8 @@ void SpaceHell::initPlayer()
 
 	//player has invulnerability for 2 seconds when invul
 	playerInvincible = false;
-	this->playerInvulTimerMax = 2.f;
-	this->playerInvulTimer = this->playerInvulTimerMax;
+	playerInvulTimerMax = 2.f;
+	playerInvulTimer = playerInvulTimerMax;
 	this->player->setRotate(0.f);
 
 	//set the spawn animation

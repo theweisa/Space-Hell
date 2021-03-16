@@ -5,13 +5,13 @@ namespace ent
 {
 	void Character::takeDamage(float damage)
 	{
-		this->hp -= damage;
+		hp -= damage;
 	}
 
 	//move the character
 	void Character::move(const float dirX, const float dirY)
 	{
-		this->sprite.move(this->movementSpeed * dirX, this->movementSpeed * dirY);
+		sprite.move(movementSpeed * dirX, movementSpeed * dirY);
 	}
 
 	//update the animations
@@ -24,18 +24,18 @@ namespace ent
 	void Character::updateFireRate()
 	{
 		//fire rate updates by 0.5f
-		if (this->fireRate < this->maxFireRate)
-			this->fireRate += 0.5f;
+		if (fireRate < maxFireRate)
+			fireRate += 0.5f;
 	}
 
 	//accessors
 	const bool Character::canFire()
 	{
 		//if the fire rate has reached the maximum fire rate, can fire.
-		if (this->fireRate >= this->maxFireRate)
+		if (fireRate >= maxFireRate)
 		{
 			//reset the fire rate
-			this->fireRate = 0.f;
+			fireRate = 0.f;
 			return true;
 		}
 		//if the fire rate is not at the maximum fire rate, cannot fire
@@ -86,12 +86,12 @@ namespace ent
 	//mutators
 	void Character::setHp(float newHp)
 	{
-		this->hp = newHp;
+		hp = newHp;
 	}
 
 	void Character::setDamage(float newDamage)
 	{
-		this->damage = newDamage;
+		damage = newDamage;
 	}
 
 	void Character::setMovementSpeed(float newMS)

@@ -20,13 +20,13 @@ namespace ent
 	//set the position with an x and y
 	void Entity::setPosition(const float posX, const float posY)
 	{
-		this->sprite.setPosition(posX, posY);
+		sprite.setPosition(posX, posY);
 	}
 
 	//set the postiion with a vector
 	void Entity::setPosition(const sf::Vector2f pos)
 	{
-		this->sprite.setPosition(pos);
+		sprite.setPosition(pos);
 	}
 
 	//set the hitbox of the entity
@@ -38,7 +38,7 @@ namespace ent
 	//set the scale of the sprite
 	void Entity::setSpriteScale(float scale)
 	{
-		this->sprite.scale(scale, scale);
+		sprite.scale(scale, scale);
 	}
 
 	//set the sprite's color
@@ -57,19 +57,19 @@ namespace ent
 	//returns the hitbox of the entity
 	const sf::FloatRect Entity::getGlobalHitbox() const
 	{
-		return this->sprite.getTransform().transformRect(hitbox);
+		return sprite.getTransform().transformRect(hitbox);
 	}
 
 	//return sprites global bounds
 	const sf::FloatRect Entity::getBounds() const
 	{
-		return this->sprite.getGlobalBounds();
+		return sprite.getGlobalBounds();
 	}
 
 	//return the current position of the sprite
 	const sf::Vector2f& Entity::getPos() const
 	{
-		return this->sprite.getPosition();
+		return sprite.getPosition();
 	}
 
 
@@ -77,7 +77,7 @@ namespace ent
 	//update the rotation of the entity's sprite
 	void Entity::updateRotation()
 	{
-		this->sprite.setRotation(rotateAngle);
+		sprite.setRotation(rotateAngle);
 	}
 
 	//add an animation to the entity's animations
@@ -95,6 +95,6 @@ namespace ent
 	//draw the constantly updating sprite
 	void Entity::render(sf::RenderTarget& target)
 	{
-		target.draw(this->sprite);
+		target.draw(sprite);
 	}
 }

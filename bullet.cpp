@@ -5,19 +5,19 @@ namespace ent
 	//bullet constructor
 	Bullet::Bullet(sf::Texture& texture, int bulletType, sf::FloatRect newHitbox, sf::Vector2f pos, float angle, sf::Vector2f dir, float newMovementSpeed, float scale)
 	{
-		this->sprite.setTexture(texture);
+		sprite.setTexture(texture);
 
 		//0 is playerBullet, 10 is basicEnemyBullet, 11 is thinEnemyBullet, 12 is bigEnemyBullet, 13 is bouncingEnemyBullet
 		type = bulletType;
 
 		//set sprite origin and position
-		this->sprite.setOrigin(sprite.getTexture()->getSize().x * 0.5f, sprite.getTexture()->getSize().y * 0.5f);
-		this->sprite.setPosition(pos);
-		this->sprite.scale(2.f * scale, 2.f * scale);
+		sprite.setOrigin(sprite.getTexture()->getSize().x * 0.5f, sprite.getTexture()->getSize().y * 0.5f);
+		sprite.setPosition(pos);
+		sprite.scale(2.f * scale, 2.f * scale);
 
 		//set direction it moves and the speed
-		this->direction = dir;
-		this->movementSpeed = newMovementSpeed;
+		direction = dir;
+		movementSpeed = newMovementSpeed;
 
 		//set the hitbox
 		this->setHitbox(newHitbox);
@@ -81,6 +81,6 @@ namespace ent
 			sprite.move(0.0125f * movementSpeed * (basePos.x - sprite.getPosition().x), 0.0125f * movementSpeed * (basePos.y - sprite.getPosition().y));
 		}
 		else
-			this->sprite.move(this->movementSpeed * this->direction);
+			sprite.move(movementSpeed * direction);
 	}
 }
