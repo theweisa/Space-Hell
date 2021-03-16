@@ -30,10 +30,10 @@
 using namespace ent;
 
 /*
-GAME CLASS
+SPACE HELL CLASS
 the entirety of the game
 */
-class Game
+class SpaceHell
 {
 private:
 	//general private variables
@@ -278,8 +278,8 @@ private:
 	//*******PUBLIC MEMBERS*******
 public:
 	//constructor/destructor
-	Game();		//constructor that initializes all the game's variables
-	~Game();	//destructor that frees all the used memory
+	SpaceHell();		//constructor that initializes all the game's variables
+	~SpaceHell();	//destructor that frees all the used memory
 	void run();	//runs the game when called in main
 };
 

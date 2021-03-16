@@ -5,7 +5,7 @@
 */
 
 //constructor
-Game::Game()
+SpaceHell::SpaceHell()
 {
 	//initialize debug mode outside of the game
 	this->debugMode = false;
@@ -33,7 +33,7 @@ Game::Game()
 }
 
 //destructor
-Game::~Game()
+SpaceHell::~SpaceHell()
 {
 	//delete the window
 	delete this->window;
@@ -99,7 +99,7 @@ Game::~Game()
 */
 
 //initialize game variables
-void Game::initVariables()
+void SpaceHell::initVariables()
 {
 	this->printDebugCommands = false;
 
@@ -142,7 +142,7 @@ void Game::initVariables()
 }
 
 //initialize window
-void Game::initWindow()
+void SpaceHell::initWindow()
 {
 	// Create a window with the same pixel depth as the desktop
 	sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
@@ -171,7 +171,7 @@ void Game::initWindow()
 }
 
 //initialize the textures and animations; assets
-void Game::initAssets()
+void SpaceHell::initAssets()
 {
 	//initialize animations
 	addAsset("spaceBackground", "Animations/blurredSpaceBackground.png");
@@ -224,7 +224,7 @@ void Game::initAssets()
 }
 
 //small function to add an asset to the assets map
-void Game::addAsset(const std::string key, const std::string fileName)
+void SpaceHell::addAsset(const std::string key, const std::string fileName)
 {
 	this->assets[key] = new sf::Texture();
 	if (!this->assets[key]->loadFromFile(fileName))
@@ -234,7 +234,7 @@ void Game::addAsset(const std::string key, const std::string fileName)
 }
 
 //initialize the music and sound effects
-void Game::initAudio()
+void SpaceHell::initAudio()
 {
 	musicVolume = 100;
 	soundVolume = 100;
@@ -271,7 +271,7 @@ void Game::initAudio()
 }
 
 //add sounds
-void Game::addSound(const std::string key, const std::string fileName, float volume)
+void SpaceHell::addSound(const std::string key, const std::string fileName, float volume)
 {
 	this->soundBuffers[key] = new sf::SoundBuffer();
 	if (this->soundBuffers[key]->loadFromFile(fileName))
@@ -285,7 +285,7 @@ void Game::addSound(const std::string key, const std::string fileName, float vol
 }
 
 //initialize the variables of the game starting; player and enemy variables
-void Game::startGame()
+void SpaceHell::startGame()
 {
 	//initialize player and player variables
 	this->initPlayer();
@@ -298,7 +298,7 @@ void Game::startGame()
 }
 
 //initialize the GUI elements like text and screens
-void Game::initGUI()
+void SpaceHell::initGUI()
 {
 	if (!font.loadFromFile("Fonts/Minecraft.ttf"))
 		std::cout << "ERROR: failed to load font.\n";
@@ -415,7 +415,7 @@ void Game::initGUI()
 }
 
 //sets a text's font, size, color, the initial string, and its position
-void Game::addText(const std::string key, unsigned charSize, sf::Color color, const std::string initialText, sf::Vector2f initialPos)
+void SpaceHell::addText(const std::string key, unsigned charSize, sf::Color color, const std::string initialText, sf::Vector2f initialPos)
 {
 	texts[key] = new sf::Text;					//create new text
 	texts[key]->setFont(font);					//set the font
@@ -426,13 +426,13 @@ void Game::addText(const std::string key, unsigned charSize, sf::Color color, co
 }
 
 //initialize world background
-void Game::initWorld()
+void SpaceHell::initWorld()
 {
 	this->spaceBackground = new Background(assets["spaceBackground"], sf::Vector2f(windowWidth * 0.5f, windowHeight * 0.5f), scale);
 }
 
 //initialize player variables
-void Game::initPlayer()
+void SpaceHell::initPlayer()
 {
 	playerDestroyed = false;
 	//set the player]s initial position at the bottom middle of the screen when spawning
@@ -469,7 +469,7 @@ void Game::initPlayer()
 }
 
 //initialize enemy variables
-void Game::initEnemy()
+void SpaceHell::initEnemy()
 {
 	enemyDestroyed = false;
 	moveUp = false;
@@ -484,7 +484,7 @@ void Game::initEnemy()
 }
 
 //function that resets the game
-void Game::resetGame(bool returnToMainMenu)
+void SpaceHell::resetGame(bool returnToMainMenu)
 {
 	//delete all the player enemy and upgrade stuff
 	if (!playerDestroyed)
@@ -539,7 +539,7 @@ void Game::resetGame(bool returnToMainMenu)
 */
 
 //update the game 
-void Game::update()
+void SpaceHell::update()
 {
 	//move player based on input
 	this->updatePlayer();
@@ -576,7 +576,7 @@ void Game::update()
 }
 
 //outside the update function since the game stop's updating when paused
-void Game::updatePause()
+void SpaceHell::updatePause()
 {
 	//increment pause buffer
 	pauseBuffer += deltaTime;
@@ -605,19 +605,19 @@ void Game::updatePause()
 }
 
 //select one of the text options
-void Game::updateSelect()
+void SpaceHell::updateSelect()
 {
 	selectBuffer += deltaTime;
 }
 
 //time it takes to update and render one frame
-void Game::updateDeltaTime()
+void SpaceHell::updateDeltaTime()
 {
 	deltaTime = deltaClock.restart().asSeconds();
 }
 
 //update mouse position
-void Game::updateMousePos()
+void SpaceHell::updateMousePos()
 {
 	//updates mouse position relative to window
 	this->mousePosWindow = sf::Mouse::getPosition(*this->window);
@@ -625,7 +625,7 @@ void Game::updateMousePos()
 }
 
 //update player
-void Game::updatePlayer()
+void SpaceHell::updatePlayer()
 {
 	//updates player position
 	playerPos = sf::Vector2f(this->player->getPos().x, this->player->getPos().y);
@@ -727,7 +727,7 @@ void Game::updatePlayer()
 }
 
 //update enemy wave and firing
-void Game::updateEnemies()
+void SpaceHell::updateEnemies()
 {
 	//update the wave depending on the current wave
 	switch (currentWave)
@@ -890,7 +890,7 @@ void Game::updateEnemies()
 
 //update the bullets for the player and the enemy
 //use iterators since for some reason, using range based for loops will cause the bullets to glitch and occasionally not update
-void Game::updateBullets()
+void SpaceHell::updateBullets()
 {
 	sf::Vector2f playerBulletPos;
 
@@ -996,7 +996,7 @@ void Game::updateBullets()
 }
 
 //update if an entity has reached the edge of the window so that it can't move outside the edges
-void Game::updateWorldCollision(Entity* entity, float offset)
+void SpaceHell::updateWorldCollision(Entity* entity, float offset)
 {
 	//Top world collision
 	if (entity->getPos().y < offset)
@@ -1021,7 +1021,7 @@ void Game::updateWorldCollision(Entity* entity, float offset)
 }
 
 //update if hitbox collides with enemy
-void Game::updateEnemyCollision()
+void SpaceHell::updateEnemyCollision()
 {
 	//need to keep track of vect pos to delete from vector
 	int unsigned enemyVectPos = 0;
@@ -1130,7 +1130,7 @@ void Game::updateEnemyCollision()
 }
 
 //update if hitbox collides with player
-void Game::updatePlayerCollision()
+void SpaceHell::updatePlayerCollision()
 {
 	unsigned int bulletVectPos = 0;
 	unsigned int enemyVectPos = 0;
@@ -1204,7 +1204,7 @@ void Game::updatePlayerCollision()
 }
 
 //update if upgrade hitbox collided with player
-void Game::updateUpgradeCollision()
+void SpaceHell::updateUpgradeCollision()
 {
 	auto itr = upgrades.begin();
 	bool upgradeDeleted = false;
@@ -1299,7 +1299,7 @@ void Game::updateUpgradeCollision()
 }
 
 //update the GUI
-void Game::updateGUI()
+void SpaceHell::updateGUI()
 {
 	std::stringstream ss;
 
@@ -1319,7 +1319,7 @@ void Game::updateGUI()
 }
 
 //upgade the enemies animation
-void Game::updateEnemyAnimation(Enemy* enemy)
+void SpaceHell::updateEnemyAnimation(Enemy* enemy)
 {
 	//if the animation is still spawn, update the spawn animation
 	if (!enemy->endOfSpawnAnimation())
@@ -1365,7 +1365,7 @@ void Game::updateEnemyAnimation(Enemy* enemy)
 }
 
 //update the players animation
-void Game::updatePlayerAnimation()
+void SpaceHell::updatePlayerAnimation()
 {
 	//******SET ANIMATION********
 	//if the spawn animation ends and current animation is spawn, set the animation to idle
@@ -1408,7 +1408,7 @@ void Game::updatePlayerAnimation()
 }
 
 //update the explosion animation
-void Game::updateExplosions()
+void SpaceHell::updateExplosions()
 {
 	auto itr = explosions.begin();
 	while (itr != explosions.end())
@@ -1427,7 +1427,7 @@ void Game::updateExplosions()
 }
 
 //update the upgrade's animation
-void Game::updateUpgrades()
+void SpaceHell::updateUpgrades()
 {
 	auto itr = upgrades.begin();
 	while (itr != upgrades.end())
@@ -1447,14 +1447,14 @@ void Game::updateUpgrades()
 }
 
 //update the background animation
-void Game::updateWorld()
+void SpaceHell::updateWorld()
 {
 	spaceBackground->setTime(deltaTime);
 	spaceBackground->update();
 }
 
 //set the music volume of the boss and normal music
-void Game::setMusicVolume(float value)
+void SpaceHell::setMusicVolume(float value)
 {
 	musicVolume = value;
 	normalBGM.setVolume(musicVolume);
@@ -1462,7 +1462,7 @@ void Game::setMusicVolume(float value)
 }
 
 //set the volume of all the sfx
-void Game::setSoundVolume(float value)
+void SpaceHell::setSoundVolume(float value)
 {
 	soundVolume = value;
 	for (auto &s : this->sounds)
@@ -1472,7 +1472,7 @@ void Game::setSoundVolume(float value)
 }
 
 //update poll events
-void Game::updatePollEvents()
+void SpaceHell::updatePollEvents()
 {
 	//while you are getting events from the window
 	while (this->window->pollEvent(this->ev))
@@ -1505,7 +1505,7 @@ void Game::updatePollEvents()
 */
 
 //render the game; the things that are rendered first appear first and last appear last; like layers
-void Game::render()
+void SpaceHell::render()
 {
 	//clear the previous render
 	this->window->clear();
@@ -1554,7 +1554,7 @@ void Game::render()
 }
 
 //render the main menu
-void Game::renderMainMenu()
+void SpaceHell::renderMainMenu()
 {
 	window->draw(*texts["titleScreenText"]);
 	window->draw(*texts["startGameText"]);
@@ -1576,7 +1576,7 @@ void Game::renderMainMenu()
 }
 
 //render the options screen
-void Game::renderOptions()
+void SpaceHell::renderOptions()
 {
 	window->draw(displayScreen);
 
@@ -1610,7 +1610,7 @@ void Game::renderOptions()
 }
 
 //render the volume slider
-void Game::renderVolumeSlider()
+void SpaceHell::renderVolumeSlider()
 {
 	window->draw(displayScreen);
 	//(windowWidth - texts["returnToMainMenuText"]->getGlobalBounds().width) * 0.5
@@ -1644,7 +1644,7 @@ void Game::renderVolumeSlider()
 	interactVolume();
 }
 
-void Game::renderCredits()
+void SpaceHell::renderCredits()
 {
 	window->draw(displayScreen);
 
@@ -1666,7 +1666,7 @@ void Game::renderCredits()
 }
 
 //render the game
-void Game::renderGame()
+void SpaceHell::renderGame()
 {
 	//render enemies
 	for (auto &enemy : this->enemies)
@@ -1742,7 +1742,7 @@ void Game::renderGame()
 
 
 //render the pause menu
-void Game::renderPauseMenu()
+void SpaceHell::renderPauseMenu()
 {
 	window->draw(displayScreen);
 	window->draw(*texts["restartLevelText"]);
@@ -1758,7 +1758,7 @@ void Game::renderPauseMenu()
 }
 
 //rendere the sequence of screens after a game over
-void Game::renderGameOverScreens()
+void SpaceHell::renderGameOverScreens()
 {
 	if (select == -1)
 	{
@@ -1808,7 +1808,7 @@ void Game::renderGameOverScreens()
 }
 
 //render the GUI
-void Game::renderGUI()
+void SpaceHell::renderGUI()
 {
 	//render all the text except for the text that appears at certain times
 	for (auto& text : texts)
@@ -1823,12 +1823,12 @@ void Game::renderGUI()
 */
 
 //return if the game window is still open
-const bool Game::running() const {
+const bool SpaceHell::running() const {
 	return this->window->isOpen();
 }
 
 //*****************DEBUG MODE*******************
-void Game::gameDebugMode()
+void SpaceHell::gameDebugMode()
 {
 	if (!printDebugCommands)
 	{
@@ -2055,7 +2055,7 @@ ENEMY TYPES:
 - 100: boss enemy
 */
 //spawn 1 basic enemy from the top. 
-void Game::waveOne()
+void SpaceHell::waveOne()
 {
 	//check the elapsed time of the wave
 	//sf::Time elapsed = spawnClock.getElapsedTime();
@@ -2091,7 +2091,7 @@ void Game::waveOne()
 }
 
 //spawn three basic enemies to go around the player
-void Game::waveTwo()
+void SpaceHell::waveTwo()
 {
 	spawnTimer += deltaTime;
 
@@ -2137,7 +2137,7 @@ void Game::waveTwo()
 }
 
 //have a shot gun enemy spawn from the top and move towards the player as well as three basic enemies from the bottom
-void Game::waveThree()
+void SpaceHell::waveThree()
 {
 	spawnTimer += deltaTime;
 
@@ -2191,7 +2191,7 @@ void Game::waveThree()
 }
 
 //have two shot gun enemies moving towards the player, and two bullet bounce enemies
-void Game::waveFour()
+void SpaceHell::waveFour()
 {
 	spawnTimer += deltaTime;
 
@@ -2246,7 +2246,7 @@ void Game::waveFour()
 }
 
 //two shot gun enemy, one bullet bounce enemy, one sniper enemy, and one normal enemy
-void Game::waveFive()
+void SpaceHell::waveFive()
 {
 	spawnTimer += deltaTime;
 	//spawn two shot gun enemies
@@ -2315,7 +2315,7 @@ void Game::waveFive()
 }
 
 //one circle shot enemy, two basic enemy, one shotgun enemy
-void Game::waveSix()
+void SpaceHell::waveSix()
 {
 	spawnTimer += deltaTime;
 	//spawn basic enemy one
@@ -2371,7 +2371,7 @@ void Game::waveSix()
 }
 
 //one spray enemy, one circle shot enemy, one sniper and basic enemy circling map
-void Game::waveSeven()
+void SpaceHell::waveSeven()
 {
 	spawnTimer += deltaTime;
 	//spawn sniper and bounce enemy
@@ -2445,7 +2445,7 @@ void Game::waveSeven()
 }
 
 //two shot gun enemies, one circle shot enemy, one basic enemy, one burst enemy
-void Game::waveEight()
+void SpaceHell::waveEight()
 {
 	spawnTimer += deltaTime;
 	//spawn two shot gun enemies from top
@@ -2515,7 +2515,7 @@ void Game::waveEight()
 }
 
 //one circle shot enemy, one spray enemy, two bullet bounce enemy, two normal enemy
-void Game::waveNine()
+void SpaceHell::waveNine()
 {
 	spawnTimer += deltaTime;
 	//spawn normal enemies from top
@@ -2582,7 +2582,7 @@ void Game::waveNine()
 }
 
 //two spray enemy, one circle shot enemy, one burst enemy; after like 5 - 7 seconds, two shot gun enemy, two bullet bounce enemy, and one more circle enemy
-void Game::waveTen()
+void SpaceHell::waveTen()
 {
 	spawnTimer += deltaTime;
 	//spawn two spray enemies
@@ -2679,7 +2679,7 @@ firing patterns:
 	- machine gun spread shots targeting the player for some time:
 	- bouncing wave of bullets
 */
-void Game::bossWave()
+void SpaceHell::bossWave()
 {
 	spawnTimer += deltaTime;
 
@@ -2735,7 +2735,7 @@ void Game::bossWave()
 }
 
 //move to the next wave
-void Game::nextWave()
+void SpaceHell::nextWave()
 {
 	//reset the spawn timer
 	spawnTimer = 0.f;
@@ -2749,7 +2749,7 @@ void Game::nextWave()
 }
 
 //move an enemy in a rectangle
-void Game::moveInRect(Enemy* enemy)
+void SpaceHell::moveInRect(Enemy* enemy)
 {
 	//moves them in a rectangle based on their current positions; have a slight offset so they dont miss the cue to move
 	sf::Vector2f radius(windowWidth - 100.f, windowHeight - 100.f);
@@ -2776,7 +2776,7 @@ void Game::moveInRect(Enemy* enemy)
 	}
 }
 
-void Game::interactMainMenu()
+void SpaceHell::interactMainMenu()
 {
 	//update the select buffer
 	updateSelect();
@@ -2843,7 +2843,7 @@ void Game::interactMainMenu()
 }
 
 //interact with the options menu
-void Game::interactOptions()
+void SpaceHell::interactOptions()
 {
 	updateSelect();
 	bool canSelect = (selectBuffer >= selectBufferMax);
@@ -2903,7 +2903,7 @@ void Game::interactOptions()
 }
 
 //interact with the credits screen options; just go back
-void Game::interactCredits()
+void SpaceHell::interactCredits()
 {
 	updateSelect();
 	bool canSelect = (selectBuffer >= selectBufferMax);
@@ -2931,7 +2931,7 @@ void Game::interactCredits()
 }
 
 //what the user can interact with on the pause menu screen
-void Game::interactPauseMenu()
+void SpaceHell::interactPauseMenu()
 {
 	updateSelect();
 	bool canSelect = (selectBuffer >= selectBufferMax);
@@ -2978,7 +2978,7 @@ void Game::interactPauseMenu()
 }
 
 //what the user can interact with on the game over screen
-void Game::interactGameOver()
+void SpaceHell::interactGameOver()
 {
 	updateSelect();
 	bool canSelect = (selectBuffer >= selectBufferMax);
@@ -3015,7 +3015,7 @@ void Game::interactGameOver()
 }
 
 //interact with the volume options; just go back
-void Game::interactVolume()
+void SpaceHell::interactVolume()
 {
 	updateSelect();
 	bool canSelect = (selectBuffer >= selectBufferMax);
@@ -3047,7 +3047,7 @@ void Game::interactVolume()
 }
 
 //spawn enemy one
-void Game::spawnEnemyOne(sf::Vector2f initialPosition, unsigned posInWave)
+void SpaceHell::spawnEnemyOne(sf::Vector2f initialPosition, unsigned posInWave)
 {
 	int type = 0;
 	float hp = 15.f;
@@ -3067,7 +3067,7 @@ void Game::spawnEnemyOne(sf::Vector2f initialPosition, unsigned posInWave)
 }
 
 //spawn bounce enemy one
-void Game::spawnBounceEnemyOne(sf::Vector2f initialPosition, unsigned posInWave)
+void SpaceHell::spawnBounceEnemyOne(sf::Vector2f initialPosition, unsigned posInWave)
 {
 	sf::FloatRect newHitbox(8, 8, 16, 16);
 
@@ -3087,7 +3087,7 @@ void Game::spawnBounceEnemyOne(sf::Vector2f initialPosition, unsigned posInWave)
 }
 
 //spawn enemy two
-void Game::spawnEnemyTwo(sf::Vector2f initialPosition, unsigned posInWave)
+void SpaceHell::spawnEnemyTwo(sf::Vector2f initialPosition, unsigned posInWave)
 {
 	sf::FloatRect newHitbox(8, 8, 16, 16);
 
@@ -3107,7 +3107,7 @@ void Game::spawnEnemyTwo(sf::Vector2f initialPosition, unsigned posInWave)
 }
 
 //spawn circle enemy two
-void Game::spawnCircleEnemyTwo(sf::Vector2f initialPosition, unsigned posInWave)
+void SpaceHell::spawnCircleEnemyTwo(sf::Vector2f initialPosition, unsigned posInWave)
 {
 	sf::FloatRect newHitbox(8, 8, 16, 16);
 
@@ -3124,7 +3124,7 @@ void Game::spawnCircleEnemyTwo(sf::Vector2f initialPosition, unsigned posInWave)
 }
 
 //spawn enemy three
-void Game::spawnEnemyThree(sf::Vector2f initialPosition, unsigned posInWave)
+void SpaceHell::spawnEnemyThree(sf::Vector2f initialPosition, unsigned posInWave)
 {
 	sf::FloatRect newHitbox(11, 6, 10, 24);
 	float hp = 17.f;
@@ -3141,7 +3141,7 @@ void Game::spawnEnemyThree(sf::Vector2f initialPosition, unsigned posInWave)
 }
 
 //spawn burst enemy three
-void Game::spawnBurstEnemyThree(sf::Vector2f initialPosition, unsigned posInWave)
+void SpaceHell::spawnBurstEnemyThree(sf::Vector2f initialPosition, unsigned posInWave)
 {
 	sf::FloatRect newHitbox(11, 6, 10, 24);
 	float hp = 20.f;
@@ -3157,7 +3157,7 @@ void Game::spawnBurstEnemyThree(sf::Vector2f initialPosition, unsigned posInWave
 }
 
 //spawn enemy four
-void Game::spawnEnemyFour(sf::Vector2f initialPosition, unsigned posInWave)
+void SpaceHell::spawnEnemyFour(sf::Vector2f initialPosition, unsigned posInWave)
 {
 	sf::FloatRect newHitbox(6, 6, 20, 20);
 	float hp = 30.f;
@@ -3173,7 +3173,7 @@ void Game::spawnEnemyFour(sf::Vector2f initialPosition, unsigned posInWave)
 }
 
 //spawn the boss
-void Game::spawnBoss(sf::Vector2f initialPosition, unsigned posInWave)
+void SpaceHell::spawnBoss(sf::Vector2f initialPosition, unsigned posInWave)
 {
 	sf::FloatRect newHitbox(13, 13, 38, 38);
 	float hp = 600.f;
@@ -3190,7 +3190,7 @@ void Game::spawnBoss(sf::Vector2f initialPosition, unsigned posInWave)
 }
 
 //spawn a random enemy
-void Game::spawnRandomEnemy()
+void SpaceHell::spawnRandomEnemy()
 {
 	//enemy spawns at the bottom center of the screen
 	sf::Vector2f initialPosition(windowWidth * 0.5f, windowHeight);
@@ -3238,7 +3238,7 @@ void Game::spawnRandomEnemy()
 }
 
 //enemy one's fire pattern; fires one bullet at a set interval
-void Game::enemyOneFirePattern()
+void SpaceHell::enemyOneFirePattern()
 {
 	//set the bullet hitbox
 	sf::FloatRect bulletHitbox(1, 1, 6, 6);
@@ -3252,7 +3252,7 @@ void Game::enemyOneFirePattern()
 }
 
 //bounce enemy one's fire pattern; fires a bouncing bullet at a set interval
-void Game::bounceEnemyOneFirePattern()
+void SpaceHell::bounceEnemyOneFirePattern()
 {
 	sf::FloatRect bulletHitbox(1, 1, 6, 6);
 	sf::Texture* bulletTexture = this->assets["bouncingEnemyBullet"];
@@ -3265,7 +3265,7 @@ void Game::bounceEnemyOneFirePattern()
 }
 
 //enemy two's fire pattern; fires a spread shot
-void Game::enemyTwoFirePattern()
+void SpaceHell::enemyTwoFirePattern()
 {
 	sf::FloatRect bulletHitbox(1, 1, 6, 6);
 	sf::Texture* bulletTexture = this->assets["enemyBullet"];
@@ -3280,7 +3280,7 @@ void Game::enemyTwoFirePattern()
 }
 
 //circle enemy two's fire pattern; fires a circle shot
-void Game::circleEnemyTwoFirePattern()
+void SpaceHell::circleEnemyTwoFirePattern()
 {
 	sf::FloatRect bulletHitbox(1, 1, 6, 6);
 	sf::Texture* bulletTexture = this->assets["enemyBullet"];
@@ -3293,7 +3293,7 @@ void Game::circleEnemyTwoFirePattern()
 }
 
 //enemy three's fire pattern; fires a fast thin shot
-void Game::enemyThreeFirePattern()
+void SpaceHell::enemyThreeFirePattern()
 {
 	sf::FloatRect bulletHitbox(6, 0, 4, 16);
 	sf::Texture* bulletTexture = this->assets["longEnemyBullet"];
@@ -3306,7 +3306,7 @@ void Game::enemyThreeFirePattern()
 }
 
 //burst enemy three's fire pattern; fires a slow burst shot
-void Game::burstEnemyThreeFirePattern()
+void SpaceHell::burstEnemyThreeFirePattern()
 {
 	sf::Texture* bulletTexture = this->assets["bigEnemyBullet"];
 	sf::FloatRect bulletHitbox(1, 1, 14, 14);
@@ -3319,7 +3319,7 @@ void Game::burstEnemyThreeFirePattern()
 }
 
 //wave enemy four's fire pattern; fires a wave of bullets
-void Game::enemyFourFirePattern(Enemy* enemy)
+void SpaceHell::enemyFourFirePattern(Enemy* enemy)
 {
 	enemy->setFireRate(8.f);
 	sf::FloatRect bulletHitbox(1, 1, 6, 6);
@@ -3346,7 +3346,7 @@ void Game::enemyFourFirePattern(Enemy* enemy)
 }
 
 //boss' fire patterns
-void Game::bossFirePattern(Enemy * enemy)
+void SpaceHell::bossFirePattern(Enemy * enemy)
 {
 	//depending on the pattern, do a different attack
 	switch (bossPattern)
@@ -3418,7 +3418,7 @@ void Game::bossFirePattern(Enemy * enemy)
 }
 
 //boss pattern one: fires a circle of bullets around the boss 10 times
-void Game::bossPatternOne(Enemy* enemy)
+void SpaceHell::bossPatternOne(Enemy* enemy)
 {
 	//increment the bullet counter
 	enemy->setBulletCounter(enemy->getBulletCounter() + 1);
@@ -3446,7 +3446,7 @@ void Game::bossPatternOne(Enemy* enemy)
 }
 
 //fires 5 cluster of bullets that explode into all directions once it reaches the initial positions
-void Game::bossPatternTwo(Enemy* enemy)
+void SpaceHell::bossPatternTwo(Enemy* enemy)
 {
 	enemy->setBulletCounter(enemy->getBulletCounter() + 1);
 
@@ -3465,7 +3465,7 @@ void Game::bossPatternTwo(Enemy* enemy)
 }
 
 //rapid machine gun spread shots targeting the player for twenty shots
-void Game::bossPatternThree(Enemy* enemy)
+void SpaceHell::bossPatternThree(Enemy* enemy)
 {
 	enemy->setBulletCounter(enemy->getBulletCounter() + 1);
 
@@ -3484,7 +3484,7 @@ void Game::bossPatternThree(Enemy* enemy)
 }
 
 //shoot a wave of bouncing bullets
-void Game::bossPatternFour(Enemy* enemy)
+void SpaceHell::bossPatternFour(Enemy* enemy)
 {
 	if (bossEnraged)
 		enemy->setFireRate(6.4f);
@@ -3503,7 +3503,7 @@ void Game::bossPatternFour(Enemy* enemy)
 }
 
 //fire bullets in a spread
-void Game::fireSpread(const std::string character, sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed, float spreadDegree)
+void SpaceHell::fireSpread(const std::string character, sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed, float spreadDegree)
 {
 	//if the player is firing
 	if (character == "player")
@@ -3546,7 +3546,7 @@ void Game::fireSpread(const std::string character, sf::Texture* bulletTexture, s
 }
 
 //fire bullets in a wave
-void Game::fireWave(sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed, float bulletOffset, sf::Vector2f baseAimDir, Enemy* enemy)
+void SpaceHell::fireWave(sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed, float bulletOffset, sf::Vector2f baseAimDir, Enemy* enemy)
 {
 	//increment the bullet counter
 	enemy->setBulletCounter(enemy->getBulletCounter() + 1);
@@ -3618,7 +3618,7 @@ void Game::fireWave(sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int 
 }
 
 //fire bullets in a circle
-void Game::fireInCircle(const std::string character, sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed, sf::Vector2f centerPos, float offset)
+void SpaceHell::fireInCircle(const std::string character, sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed, sf::Vector2f centerPos, float offset)
 {
 	//initial degree is the set offset
 	float degree = offset;
@@ -3639,7 +3639,7 @@ void Game::fireInCircle(const std::string character, sf::Texture* bulletTexture,
 }
 
 //fire bullets as a cluster
-void Game::fireClusterShot(const std::string character, sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed)
+void SpaceHell::fireClusterShot(const std::string character, sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed)
 {
 	if (character == "player")
 	{
@@ -3658,13 +3658,13 @@ void Game::fireClusterShot(const std::string character, sf::Texture* bulletTextu
 }
 
 //burst the cluster shot
-void Game::burstClusterShot(const std::string character, sf::Vector2f burstPos, sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed)
+void SpaceHell::burstClusterShot(const std::string character, sf::Vector2f burstPos, sf::Texture* bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed)
 {
 	fireInCircle(character, bulletTexture, bulletHitbox, bulletType, bulletSpeed, burstPos, 0);
 }
 
 //fires double bullets
-void Game::fireDoubleBullets(const std::string character, sf::Texture * bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed)
+void SpaceHell::fireDoubleBullets(const std::string character, sf::Texture * bulletTexture, sf::FloatRect bulletHitbox, int bulletType, float bulletSpeed)
 {
 	//will need to get the angles from the two sides of the player;
 	sf::Vector2f leftPos, rightPos;
@@ -3723,7 +3723,7 @@ void Game::fireDoubleBullets(const std::string character, sf::Texture * bulletTe
 }
 
 //bounces a bullet
-void Game::bounceBullet(Bullet * bullet)
+void SpaceHell::bounceBullet(Bullet * bullet)
 {
 	//top wall
 	if (bullet->getPos().y < 0.f)
@@ -3753,7 +3753,7 @@ void Game::bounceBullet(Bullet * bullet)
 }
 
 //power ups: damage up, hp up, fire rate up; other power ups: double ray, spread shot, sniper (?)
-void Game::dropPowerUp(Enemy* enemy)
+void SpaceHell::dropPowerUp(Enemy* enemy)
 {
 	int dmgUpChance, hpUpChance, fireRateUpChance, doubleBulletUpChance, spreadBulletUpChance, burstBulletUpChance, dropType;
 	sf::Texture* newTexture = nullptr;
@@ -3891,7 +3891,7 @@ void Game::dropPowerUp(Enemy* enemy)
 	}
 }
 
-void Game::printHighScores()
+void SpaceHell::printHighScores()
 {
 	Score s(points);
 	points = 0;
@@ -3902,7 +3902,7 @@ void Game::printHighScores()
 	texts["scoreText"]->setString(ss.str());
 }
 
-void Game::playBGM()
+void SpaceHell::playBGM()
 {
 	//play the bgm while the game is running
 	if (bossBGM.getStatus() == sf::Music::Playing)
@@ -3915,7 +3915,7 @@ void Game::playBGM()
 	}
 }
 
-void Game::playBossBGM()
+void SpaceHell::playBossBGM()
 {
 	//stop playing the normal background music if it's playing
 	if (normalBGM.getStatus() == sf::Music::Playing)
@@ -3932,7 +3932,7 @@ void Game::playBossBGM()
 */
 
 //runs the game
-void Game::run()
+void SpaceHell::run()
 {
 	//while the game window is not closed, run the game
 	while (running())
